@@ -60,6 +60,9 @@ button.primary{background:var(--blue);color:#fff;border-color:var(--blue)}button
 .m-iq{font-size:26px;font-weight:800;color:var(--blue);line-height:1}
 .m-dom{display:grid;grid-template-columns:44px 1fr;gap:3px 5px;align-items:center;font-size:8.5px;margin-top:6px}.m-dom i{display:block;height:5px;background:var(--blue);border-radius:9px}
 /* grid */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:14px}@media(max-width:900px){.kpis{grid-template-columns:1fr 1fr}}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px}.kpi .l{color:var(--mute);font-weight:700;font-size:15px}.kpi .v{font-size:34px;font-weight:800;line-height:1.2;margin-top:4px}.kpi .s{color:var(--mute);font-size:14px}.kpi .up{color:#1e8e3e}.kpi .dn{color:#d93025}
+#queue .test{cursor:pointer}#queue .test:hover{border-color:var(--blue)}
 .grid{display:grid;grid-template-columns:1.55fr 1fr;gap:16px}@media(max-width:900px){.grid{grid-template-columns:1fr}}
 .chartbox{position:relative;height:380px;direction:ltr}
 .test{border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
@@ -106,6 +109,7 @@ td:first-child{font-weight:700;white-space:nowrap}code{font:14px Inter,monospace
  <button id="fopen">מה השתנה בין הגרסאות</button>
  <span class="day" id="dayl" aria-live="polite">יום 0</span>
 </div>
+<div class="kpis" id="kpis"></div>
 <div class="now" id="now" aria-live="polite"></div>
 
 <dialog id="fdlg" class="card" aria-labelledby="fdlgh">
@@ -207,14 +211,17 @@ function screens(c){const s=[{k:"ad",he:"מודעה",h:scr.ad()},{k:"landing",he
  s.push({k:"result",he:"תוצאה",h:scr.result()},{k:"email",he:"מייל",h:scr.email()});return s}
 function shipped(){return S.tests.map((T,k)=>T.dec==="ship"?k:-1).filter(k=>k>=0)}
 function liveCfg(){const c={};shipped().forEach(k=>c[TESTS[k].key]=1);return c}
-function lane(tag,title,cfg,chgKey){const sh=shipped();
+function lane(tag,title,cfg,chgKey){const sh=shipped().filter(j=>fk==null||j<fk);
  return '<div class="lane"><div class="lane-h"><span class="tag t'+tag+'">'+tag+'</span>'+title+'</div><div class="steps">'+screens(cfg).map((x,i)=>{
   const chg=chgKey&&TESTS.find(t=>t.key===chgKey).aff.includes(x.k);
   const chips=(x.conv?'<span class="chip c-conv">כאן נרשמים</span>':'')+sh.filter(k=>TESTS[k].aff.includes(x.k)).map(k=>'<span class="chip c-lay">שכבה '+(sh.indexOf(k)+1)+'</span>').join("")+(chg?'<span class="chip c-chg">השינוי שנבדק</span>':'');
   return (i?'<span class="arrow" aria-hidden="true">←</span>':'')+'<div class="step'+(chg?' chg':'')+'"><div class="phone">'+x.h+'</div><div class="lbl">'+x.he+'</div><div class="chips">'+chips+'</div></div>'}).join("")+'</div></div>'}
-let fsig="";
-function renderFunnel(){const sig=S.i+"|"+S.done+"|"+shipped().join();if(sig===fsig)return;fsig=sig;
- const live=liveCfg(),v="v"+(shipped().length+1),F=document.getElementById("funnel");
+let fsig="",fk=null;
+function renderFunnel(){const sig=S.i+"|"+S.done+"|"+shipped().join()+"|"+fk;if(sig===fsig)return;fsig=sig;
+ const F=document.getElementById("funnel");
+ if(fk!=null){const pre=shipped().filter(j=>j<fk),live={};pre.forEach(j=>live[TESTS[j].key]=1);const v="v"+(pre.length+1),t=TESTS[fk];
+  F.innerHTML=lane("A","לפני: הגרסה החיה, "+v,live,null)+lane("B","אחרי: "+v+" ועוד השינוי של בדיקה "+(fk+1)+": "+t.name,{...live,[t.key]:1},t.key);return}
+ const live=liveCfg(),v="v"+(shipped().length+1);
  if(S.done){F.innerHTML=lane("A","המשפך שבאוויר בסוף התור, "+v,live,null);return}
  const t=TESTS[S.i];F.innerHTML=lane("A","הגרסה החיה, "+v,live,null)+lane("B",v+" ועוד השינוי של בדיקה "+(S.i+1)+": "+t.name,{...live,[t.key]:1},t.key)}
 
@@ -247,14 +254,22 @@ function advance(){S.i++;S.oA={};S.oB={};
  if(S.i<TESTS.length){const nt=TESTS[S.i],base=planTest(S.i,S.day+1);log("בדיקה "+(S.i+1)+" מתחילה ביום "+(S.day+1)+" מעל הגרסה החיה. המדד שקובע: "+MET[nt.kpi].he+", בסיס "+ltr(pct(base))+". צריך "+fmt(S.tests[S.i].n)+" "+unitOf(nt.kpi)+" בכל גרסה.")}
  else{S.done=true;log("הבקלוג ריק. כל הבדיקות הוכרעו.",1);stop()}}
 function kill(){if(S.done)return;const T=S.tests[S.i];T.dec="kill";T.end=S.day;log("יום "+S.day+": בדיקה "+(S.i+1)+" נעצרה ידנית. נשארים עם A ועוברים לבדיקה הבאה.",1);advance();chart.update("none");render()}
+function renderKpis(){const v1=trueRate(rates({}),"cvr"),live=trueRate(rates(liveCfg()),"cvr"),d=live/v1-1,dec=S.tests.filter(T=>T.dec).length,won=shipped().length;
+ const vis=S.tests.reduce((n,T,k)=>n+((k===S.i&&!S.done?S.oA.land+S.oB.land:T.oA?T.oA.land+T.oB.land:0)||0),0),T=S.tests[S.i],cur=!S.done&&T&&T.nA;
+ const tile=(l,v,sub)=>'<div class="kpi"><div class="l">'+l+'</div><div class="v">'+v+'</div><div class="s">'+sub+'</div></div>';
+ document.getElementById("kpis").innerHTML=
+  tile("הרשמה מתוך מבקרים, באוויר",ltr(pct(live,2)),d>0?'<b class="up">'+ltr("+"+pct(d))+'</b> מאז v1':"כמו ב-v1, "+ltr(pct(v1,2)))+
+  tile("בדיקות שהוכרעו",dec+" / "+TESTS.length,won+" עלו לאוויר")+
+  tile("מבקרים שעברו בתור",ltr(fmt(vis)),"בשתי הגרסאות, יום "+S.day)+
+  tile("B מול A עכשיו",cur?'<span class="'+(T.cv>=T.cc?'up':'dn')+'">'+ltr((T.cv>=T.cc?"+":"")+pct(T.cv/T.cc-1))+'</span>':"—",cur?ltr(T.p<1e-4?"p < 0.0001":"p = "+T.p.toFixed(3)):S.done?"התור ריק":"עוד אין נתונים")}
 const COL={ship:"#1e8e3e",keep:"#5f6368",rej:"#d93025",srm:"#b45309",kill:"#b45309"};
-function render(){document.getElementById("dayl").textContent="יום "+S.day;
+function render(){document.getElementById("dayl").textContent="יום "+S.day;renderKpis();
  document.getElementById("now").innerHTML=S.done?"<b>כל שלוש הבדיקות הוכרעו.</b> למטה רואים איזה משפך נשאר באוויר.":"<b>עכשיו בבדיקה, "+(S.i+1)+" מתוך 3:</b> "+TESTS[S.i].name+". "+TESTS[S.i].B+".";
  renderFunnel();
  document.getElementById("queue").innerHTML=TESTS.map((t,k)=>{const T=S.tests[k],run=k===S.i&&!S.done,has=T.nA;
   const b=T.dec?'<span class="badge b-'+T.dec+'">'+DEC[T.dec]+'</span>':run?'<span class="badge b-run">רצה עכשיו</span>':'<span class="badge">ממתינה</span>';
   const prog=T.n&&has?Math.min(1,Math.min(T.nA,T.nB)/T.n):0;
-  return '<div class="test'+(run?' run':'')+'"><div class="top"><span class="name">'+(k+1)+'. '+t.name+'</span>'+b+'</div>'+
+  return '<div class="test'+(run?' run':'')+'" role="button" tabindex="0" data-fk="'+k+'" aria-label="מה משתנה בבדיקה '+(k+1)+'"><div class="top"><span class="name">'+(k+1)+'. '+t.name+'</span>'+b+'</div>'+
   (T.n?'<div class="stats"><span>'+unitOf(t.kpi)+' בכל גרסה</span><b>'+(has?fmt(Math.min(T.nA,T.nB))+' / ':'')+fmt(T.n)+'</b></div><div class="bar"><i style="width:'+(prog*100)+'%"></i></div>':'')+
   (has?'<div class="stats"><span>A</span><b>'+pct(T.cc)+'</b><span>B</span><b>'+pct(T.cv)+'</b><span>p</span><b>'+(T.p<1e-4?'<0.0001':T.p.toFixed(3))+'</b>'+(T.gc==null?'':'<span>מדד הגנה</span><b class="'+(T.gHeld?'ok':'bad')+'">'+pct(T.gc)+' → '+pct(T.gv)+'</b>')+'</div>':'')+(run&&has?'<button class="kill" onclick="kill()">עצירת בדיקה</button>':'')+'</div>'}).join("");
  renderBacklog();lockSettings();
@@ -303,5 +318,8 @@ function route(){const h=["dash","backlog","settings"].includes(location.hash.sl
  document.querySelectorAll(".nav a").forEach(a=>a.getAttribute("href")==="#"+h?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));if(h==="dash")chart.resize()}
 addEventListener("hashchange",route);
 renderParams();reset();route();
-</script><script>{const d=document.getElementById("fdlg");document.getElementById("fopen").onclick=()=>d.showModal();document.getElementById("fclose").onclick=()=>d.close();d.addEventListener("click",e=>{if(e.target===d)d.close()})}</script>
+</script><script>{const d=document.getElementById("fdlg"),open=k=>{fk=k;renderFunnel();d.showModal()};d.addEventListener("close",()=>{fk=null;renderFunnel()});
+document.getElementById("queue").addEventListener("click",e=>{const c=e.target.closest("[data-fk]");if(c&&!e.target.closest("button"))open(+c.dataset.fk)});
+document.getElementById("queue").addEventListener("keydown",e=>{const c=e.target.closest("[data-fk]");if(c&&(e.key==="Enter"||e.key===" ")&&e.target===c){e.preventDefault();open(+c.dataset.fk)}});
+document.getElementById("fopen").onclick=()=>{fk=null;renderFunnel();d.showModal()};document.getElementById("fclose").onclick=()=>d.close();d.addEventListener("click",e=>{if(e.target===d)d.close()})}</script>
 </body></html>
