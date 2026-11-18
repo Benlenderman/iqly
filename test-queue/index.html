@@ -121,7 +121,6 @@ header.top .in{max-width:1240px;margin:0 auto;padding:0 16px;height:64px;display
 <div class="page" id="p-dash">
 <div class="controls">
  <button class="primary" id="play">▶ הרצת התור</button><button id="reset">מההתחלה</button>
- <span class="seg" id="mode"><button data-m="rec" class="on">ההרצה מהמסמך</button><button data-m="rand">תנועה אקראית חדשה</button></span>
  <button id="fopen">מה השתנה בין הגרסאות</button>
  <span class="day" id="dayl" aria-live="polite">יום 0</span>
 </div>
@@ -242,7 +241,7 @@ function renderFunnel(){const sig=S.i+"|"+S.done+"|"+shipped().join()+"|"+fk;if(
  const t=TESTS[S.i];F.innerHTML=lane("A","הגרסה החיה, "+v,live,null)+lane("B",v+" ועוד השינוי של בדיקה "+(S.i+1)+": "+t.name,{...live,[t.key]:1},t.key)}
 
 /* ---------- engine ---------- */
-let S,timer=null,mode="rec",speed=250,chart;
+let S,timer=null,speed=250,chart;
 function reset(){stop();rng=seed(Date.now()%1e9);S={day:0,i:0,oA:{},oB:{},tests:TESTS.map(()=>({})),done:false};
  const base=planTest(0,1);fsig="";
  document.getElementById("log").innerHTML="";log("שלוש בדיקות בבקלוג. בדיקה 1 נמדדת לפי "+MET[TESTS[0].kpi].he+", מול בסיס של "+ltr(pct(base))+", ותצטרך "+fmt(S.tests[0].n)+" "+unitOf(TESTS[0].kpi)+" בכל גרסה.",1);
@@ -252,7 +251,7 @@ function log(s,ev){const d=document.createElement("div");if(ev)d.className="ev";
 function planTest(k,day){const t=TESTS[k],P=k&&S.tests[k-1],w=P&&(P.dec==="ship"?P.oB:P.oA),obs=w&&rate(w,t.kpi);
  const base=obs||trueRate(rates(liveCfg()),t.kpi);S.tests[k]={n:nArm(base),base,start:day};return base}
 const unitOf=k=>MET[k].d==="land"?"מבקרים בדף":MET[k].d==="start"?"מתחילי שאלון":"צופים בשער";
-function step(){if(S.done)return stop();S.day++;const i=S.i,t=TESTS[i],[a,b]=mode==="rec"?recDay(S.day-1):simDay(i),T=S.tests[i];
+function step(){if(S.done)return stop();S.day++;const i=S.i,t=TESTS[i],[a,b]=isDefault()?recDay(S.day-1):simDay(i),T=S.tests[i];
  EV.forEach(e=>{S.oA[e]=(S.oA[e]||0)+(a[e]||0);S.oB[e]=(S.oB[e]||0)+(b[e]||0)});
  const K=MET[t.kpi],xa=S.oA[K.n],na=S.oA[K.d],xb=S.oB[K.n],nb_=S.oB[K.d];
  chart.data.labels.push(S.day);const ds=chart.data.datasets;ds[0].data.push(xa/na*100);ds[1].data.push(xb/nb_*100);ds[2].data.push(T.base*100);
@@ -323,10 +322,9 @@ function renderBacklog(){document.getElementById("backlog").innerHTML=TESTS.map(
  BL.querySelectorAll("[data-done]").forEach(x=>x.onclick=()=>{edK=null;render()});
  BL.querySelectorAll("[data-def]").forEach(x=>x.onclick=()=>{const t=TESTS[+x.dataset.def];Object.assign(t,t.o);const m=t.kpi!==t.kpi0||t.grd!==t.grd0;t.kpi=t.kpi0;t.grd=t.grd0;if(m&&S.day===0)reset();else render()});
  BL.querySelectorAll("[data-t]").forEach(x=>x.oninput=()=>{TESTS[+x.dataset.k][x.dataset.t]=x.value.trim()||TESTS[+x.dataset.k].o[x.dataset.t]});
- document.querySelectorAll("#backlog select").forEach(el=>{el.disabled=S.day>0;el.onchange=()=>{TESTS[+el.dataset.k][el.dataset.f]=el.value;forceRand();reset()}})}
+ document.querySelectorAll("#backlog select").forEach(el=>{el.disabled=S.day>0;el.onchange=()=>{TESTS[+el.dataset.k][el.dataset.f]=el.value;reset()}})}
 function renderParams(){document.getElementById("params").innerHTML=PAR.map(p=>'<label>'+p.he+'<select data-p="'+p.id+'">'+p.o.map(([v,l])=>'<option value="'+v+'"'+(v===PV[p.id]?' selected':'')+'>'+l+'</option>').join("")+'</select></label>').join("");
- document.querySelectorAll("#params select").forEach(el=>el.onchange=()=>{PV[el.dataset.p]=+el.value;applyParams();renderParams();forceRand();reset()})}
-function forceRand(){if(!isDefault()&&mode==="rec"){mode="rand";document.querySelectorAll("#mode button").forEach(x=>{const on=x.dataset.m==="rand";x.classList.toggle("on",on);x.setAttribute("aria-pressed",on)})}}
+ document.querySelectorAll("#params select").forEach(el=>el.onchange=()=>{PV[el.dataset.p]=+el.value;applyParams();renderParams();reset()})}
 function lockSettings(){const L=S.day>0;document.querySelectorAll("#params select,#backlog select").forEach(el=>el.disabled=L);document.getElementById("plock").hidden=!L}
 function stop(){clearInterval(timer);timer=null;if(S)render()}
 function play(){if(timer)return stop();timer=setInterval(step,speed);render()}
@@ -345,7 +343,6 @@ chart=new Chart(document.getElementById("ch"),{type:"line",data:{labels:[],datas
  plugins:{legend:{position:"bottom",rtl:true,labels:{boxWidth:16,padding:16}},tooltip:{rtl:true,callbacks:{label:c=>c.dataset.label+": "+c.parsed.y.toFixed(1)+"%"}}}}});
 const seg=(id,fn)=>document.querySelectorAll("#"+id+" button").forEach(b=>{b.setAttribute("aria-pressed",b.classList.contains("on"));b.onclick=()=>{document.querySelectorAll("#"+id+" button").forEach(x=>{x.classList.toggle("on",x===b);x.setAttribute("aria-pressed",x===b)});fn(b)}});
 document.getElementById("play").onclick=play;document.getElementById("reset").onclick=reset;
-seg("mode",b=>{mode=b.dataset.m;if(mode==="rec"){TESTS.forEach(t=>{t.kpi=t.kpi0;t.grd=t.grd0});PAR.forEach(p=>PV[p.id]=p.d);applyParams();renderParams()}reset()});
 function route(){const h=["dash","backlog","settings"].includes(location.hash.slice(1))?location.hash.slice(1):"dash";
  ["dash","backlog","settings"].forEach(x=>document.getElementById("p-"+x).hidden=x!==h);
  document.querySelectorAll(".nav a").forEach(a=>a.getAttribute("href")==="#"+h?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));if(h==="dash")chart.resize()}
