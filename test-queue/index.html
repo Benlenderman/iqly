@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IQly Test Queue</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--ink:#14161b;--mute:#4b5563;--line:#e5e7eb;--blue:#2f5bea;--blue-soft:#e8eefe;--ship:#1e8e3e;--ship-soft:#e6f4ea;--keep:#5f6368;--rej:#d93025;--rej-soft:#fce8e6;--srm:#b45309}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 Heebo,Inter,system-ui,sans-serif}
+.wrap{max-width:1240px;margin:0 auto;padding:32px 16px 56px}
+h1{font-size:34px;line-height:1.2;margin:0 0 10px;font-weight:800}
+.lead{color:var(--mute);font-size:19px;max-width:760px;margin:0 0 28px}
+h2{font-size:22px;margin:0 0 6px;font-weight:800}
+.sub{color:var(--mute);margin:0 0 16px;font-size:16px}
+section{margin-bottom:28px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px}
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:820px){.how{grid-template-columns:1fr}}
+.how .card{padding:18px}.how b{display:block;font-size:18px;margin-bottom:4px}.how .n{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--blue);color:#fff;font-weight:800;margin-bottom:8px}
+.how p{margin:0;color:var(--mute);font-size:16px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+button{font:inherit;font-weight:700;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px 16px;border-radius:9px;cursor:pointer;min-height:44px}
+button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+button.primary{background:var(--blue);color:#fff;border-color:var(--blue)}button:disabled{opacity:.45;cursor:default}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}.seg button{border:0;border-radius:0}.seg button.on{background:var(--ink);color:#fff}
+.day{margin-inline-start:auto;font-weight:800;font-size:24px}
+@media(max-width:700px){.day{margin-inline-start:0}}
+.now{background:var(--blue-soft);border:1px solid #c7d4fb;border-radius:14px;padding:14px 20px;margin-bottom:14px;font-size:18px}
+.now b{color:var(--blue)}
+/* funnel */
+.lane{margin-bottom:18px}
+.lane-h{display:flex;gap:10px;align-items:center;font-weight:700;font-size:17px;margin-bottom:8px;flex-wrap:wrap}
+.tag{flex:none;font-weight:800;font-size:14px;color:#fff;border-radius:6px;padding:1px 9px;font-family:Inter,sans-serif}.tA{background:#6b7280}.tB{background:var(--blue)}
+.steps{display:flex;align-items:flex-start;gap:4px;overflow-x:auto;padding:6px 4px 10px;scroll-snap-type:x proximity}
+.step{flex:none;width:156px;scroll-snap-align:start;text-align:center}
+.arrow{flex:none;align-self:center;color:#9ca3af;font-size:22px;margin-top:-40px}
+.phone{height:272px;border:2px solid #d1d5db;border-radius:18px;background:#fff;padding:12px 9px;direction:ltr;text-align:left;font:10px/1.35 Inter,sans-serif;color:#14161b;overflow:hidden;position:relative}
+.step.chg .phone{border-color:var(--blue);box-shadow:0 0 0 4px #2f5bea33}
+.step .lbl{font-weight:700;font-size:15px;margin-top:8px}
+.chips{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:4px;min-height:24px}
+.chip{font-size:13px;font-weight:700;padding:1px 8px;border-radius:99px;background:#eef0f4;color:var(--mute)}
+.chip.c-chg{background:var(--blue);color:#fff}.chip.c-lay{background:var(--ship-soft);color:var(--ship)}.chip.c-conv{background:#fff4d6;color:#92400e}
+/* mock screens */
+.m-logo{font-weight:800;color:var(--blue);font-size:11px;margin-bottom:6px}
+.m-h{font-weight:800;font-size:15px;line-height:1.15;margin:2px 0 4px}
+.m-s{color:#4b5563;font-size:9.5px;margin-bottom:6px}
+.m-btn{background:var(--blue);color:#fff;border-radius:6px;text-align:center;font-weight:700;padding:6px 4px;margin-top:6px;font-size:10px}
+.m-btn.g{background:#fff;color:#14161b;border:1px solid #d1d5db}
+.m-card{border:1px solid #e5e7eb;border-radius:6px;padding:5px 6px;font-size:9px;color:#374151;margin:4px 0}
+.m-opt{border:1px solid #d1d5db;border-radius:5px;padding:4px 6px;margin:3px 0;font-size:9.5px}
+.m-bar{height:4px;background:#eef0f4;border-radius:9px;margin:4px 0 8px;overflow:hidden}.m-bar i{display:block;height:100%;background:var(--blue)}
+.m-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin:6px 0}.m-grid span{aspect-ratio:1;background:#e8eefe;border-radius:3px}.m-grid span:nth-child(5){background:#fff;border:1px dashed #9ca3af}
+.m-field{border:1px solid #d1d5db;border-radius:5px;padding:5px 6px;color:#9ca3af;margin-top:5px;font-size:9.5px}
+.m-ad{background:linear-gradient(160deg,#2f5bea,#1e3a9f);color:#fff;border-radius:10px;padding:12px 10px;height:100%;display:flex;flex-direction:column;justify-content:center}
+.m-ad .m-btn{background:#fff;color:var(--blue)}
+.m-mail-h{border-bottom:1px solid #e5e7eb;padding-bottom:5px;margin-bottom:6px;font-size:9px;color:#6b7280}
+.m-iq{font-size:26px;font-weight:800;color:var(--blue);line-height:1}
+.m-dom{display:grid;grid-template-columns:44px 1fr;gap:3px 5px;align-items:center;font-size:8.5px;margin-top:6px}.m-dom i{display:block;height:5px;background:var(--blue);border-radius:9px}
+/* grid */
+.grid{display:grid;grid-template-columns:1.55fr 1fr;gap:16px}@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.chartbox{position:relative;height:380px;direction:ltr}
+.test{border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+.test.run{border-color:var(--blue);box-shadow:0 0 0 3px #2f5bea22}
+.test .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.test .name{font-weight:800;font-size:18px}
+.badge{font-size:14px;font-weight:700;padding:3px 10px;border-radius:99px;background:#eef0f4;color:var(--mute);white-space:nowrap}
+.b-run{background:var(--blue-soft);color:var(--blue)}.b-ship{background:var(--ship-soft);color:var(--ship)}.b-keep{background:#eef0f4;color:var(--keep)}.b-rej{background:var(--rej-soft);color:var(--rej)}.b-srm,.b-kill{background:#fef3c7;color:var(--srm)}
+.ab{display:grid;gap:6px;margin:10px 0}.ab div{display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-radius:8px;background:#f3f4f6;font-size:16px}
+.ab .win{outline:2px solid var(--ship);background:var(--ship-soft)}
+.why{color:var(--mute);font-size:16px;margin:0 0 10px}
+.bar{height:8px;background:#eef0f4;border-radius:99px;overflow:hidden;margin:6px 0 10px}.bar i{display:block;height:100%;background:var(--blue);width:0;transition:width .25s}
+.stats{display:grid;grid-template-columns:1fr auto;gap:4px 16px;font-size:16px}.stats b{font-variant-numeric:tabular-nums;direction:ltr}
+.ok{color:var(--ship)}.bad{color:var(--rej)}
+.stack{display:flex;flex-direction:column-reverse;gap:6px}
+.layer{border-radius:10px;padding:10px 14px;font-size:16px;border:1px solid var(--line)}
+.layer.base{background:#f3f4f6}.layer.on{background:var(--ship-soft);border-color:#a8d5b5}.layer.off{background:#fff;color:#9ca3af;border-style:dashed}.layer.pend{background:#fff;border-style:dashed;color:var(--mute)}
+.layer b{color:var(--ink)}.layer.off b{color:#9ca3af;text-decoration:line-through}
+.log{font-size:16px;line-height:1.6;max-height:340px;overflow:auto}
+.log div{padding:8px 0;border-bottom:1px dashed var(--line)}.log .ev{font-weight:700}
+.kpi select{font:inherit;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:44px;max-width:100%}.kpi td{vertical-align:middle}.kpi .ev{display:block;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:16px}th,td{text-align:right;padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:15px;color:var(--mute);font-weight:700}
+td:first-child{font-weight:700;white-space:nowrap}code{font:14px Inter,monospace;background:#f3f4f6;padding:1px 5px;border-radius:4px;direction:ltr;display:inline-block}
+.tablewrap{overflow-x:auto}
+.rules{margin:0;padding-inline-start:22px}.rules li{margin:8px 0}
+.nav{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 0 22px;overflow-x:auto}.nav a{padding:10px 18px;font-weight:700;color:var(--mute);text-decoration:none;border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap;min-height:44px}.nav a[aria-current=page]{color:var(--blue);border-color:var(--blue)}
+.exp dl{display:grid;grid-template-columns:130px 1fr;gap:8px 16px;margin:12px 0 0}.exp dt{color:var(--mute);font-weight:700}.exp dd{margin:0}.exp a{color:var(--blue)}.muted{color:#9ca3af}
+@media(max-width:600px){.exp dl{grid-template-columns:1fr;gap:2px}.exp dd{margin-bottom:10px}}
+.params{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.params label{display:flex;flex-direction:column;gap:6px;font-weight:700}.params select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:44px}
+.lock{color:var(--srm);font-size:15px;margin:10px 0 0}
+.kill{font-size:15px;min-height:40px;padding:6px 12px;margin-top:6px;color:var(--rej)}
+.foot{color:var(--mute);font-size:16px;max-width:860px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body><div class="wrap">
+
+<h1>תור בדיקות אוטומטי למשפך של IQly</h1>
+<p class="lead">כל שינוי נכנס לתור כגרסה של המשפך. המנוע מריץ אותה מול מה שבאוויר, מעלה את המנצחת, והבדיקה הבאה נבנית מעליה.</p>
+
+<nav class="nav" aria-label="עמודים"><a href="#dash">דשבורד</a><a href="#backlog">בקלוג</a><a href="#settings">הגדרות</a></nav>
+
+<div class="page" id="p-dash">
+<div class="controls">
+ <button class="primary" id="play">▶ הרצת התור</button><button id="reset">מההתחלה</button>
+ <span class="seg" id="mode"><button data-m="rec" class="on">ההרצה מהמסמך</button><button data-m="rand">תנועה אקראית חדשה</button></span>
+ <span class="day" id="dayl" aria-live="polite">יום 0</span>
+</div>
+<div class="now" id="now" aria-live="polite"></div>
+
+<section class="card">
+ <h2>המשפך, מהמודעה ועד המייל</h2>
+ <p class="sub" id="fsub">A באוויר. B זהה, עם השינוי של הבדיקה בכחול. מה שכבר ניצח מסומן בירוק.</p>
+ <div id="funnel"></div>
+</section>
+
+<section class="grid">
+ <div>
+  <div class="card"><h2>המדד שקובע, יום אחרי יום</h2><div class="chartbox"><canvas id="ch" role="img" aria-label="גרף שיעור ההרשמה של גרסה A וגרסה B לאורך שלוש הבדיקות"></canvas></div></div>
+  <div class="card" style="margin-top:16px"><h2>יומן המנוע</h2><div class="log" id="log" role="log" aria-live="polite"></div></div>
+ </div>
+ <div>
+  <div class="card"><h2>בדיקות</h2><div id="queue"></div></div>
+ </div>
+</section>
+</div>
+
+<div class="page" id="p-backlog" hidden>
+<section class="card">
+ <h2>בקלוג ניסויים</h2>
+ <p class="sub">בכל ניסוי: מה השתנה, המטרה, התזה ואיפה הקוד. אחרי ההכרעה נכנסות התוצאה ומה למדנו.</p>
+ <div id="backlog"></div>
+</section>
+</div>
+
+<div class="page" id="p-settings" hidden>
+<section class="card">
+ <h2>הגדרות סטטיסטיות</h2>
+ <p class="sub">חלות על כל הבדיקות וננעלות כשהתור מתחיל, כדי שאף אחד לא ישנה את הכללים באמצע.</p>
+ <div class="params" id="params"></div>
+ <p class="sub" style="margin:14px 0 0">חלוקת תנועה 50/50, קבועה. חלוקה נחשבת שבורה ב-<span dir="ltr">p &lt; 0.001</span>.</p>
+ <p class="lock" id="plock" hidden>נעול: התור כבר רץ. כדי לשנות, מתחילים מההתחלה.</p>
+</section>
+<section class="card">
+ <h2>חלונית המדדים</h2>
+ <p class="sub">לכל בדיקה בוחרים לפי מה מחליטים ומה אסור לשבור. המדגם מתעדכן לבד.</p>
+ <div class="tablewrap"><table class="kpi"><thead><tr><th>בדיקה</th><th>המדד שקובע</th><th>מדד הגנה</th><th>מדגם לכל גרסה</th></tr></thead><tbody id="kpi"></tbody></table></div>
+</section>
+
+<section class="card">
+ <h2>ההצעה: איך בוחנים כל שלב במשפך</h2>
+ <p class="sub">לכל שלב: מה משנים, לפי מה מודדים ומה אסור שייפגע.</p>
+ <div class="tablewrap"><table>
+  <tr><th>שלב</th><th>מה בודקים</th><th>מדד השלב</th><th>מדד הגנה</th></tr>
+  <tr><td>מודעה</td><td>כותרת, תמונה, הבטחה</td><td>הקלקות חלקי חשיפות</td><td>שיעור ההרשמה של המקליקים לא נפגע</td></tr>
+  <tr><td>דף נחיתה</td><td>כותרת, מה רואים מעל הקפל, הכפתור</td><td><code>quiz_start / landing_view</code></td><td><code>quiz_complete / quiz_start</code></td></tr>
+  <tr><td>שאלון</td><td>אורך, סדר השאלות, מונה ההתקדמות</td><td><code>quiz_complete / quiz_start</code></td><td>הציון הממוצע לא משתנה</td></tr>
+  <tr><td>שער הרשמה</td><td>איפה הוא עומד, מה מראים בו, איך נרשמים</td><td><code>account_created / gate_view</code></td><td>מיילים חוזרים, <code>result_view / account_created</code></td></tr>
+  <tr><td>מייל</td><td>שורת נושא, מה מגלים בו, מתי נשלח</td><td>פתיחות וחזרה לאתר תוך 7 ימים</td><td>הסרות מהרשימה</td></tr>
+ </table></div>
+</section>
+
+<section class="card">
+ <h2>כללי ההכרעה, לפי הסדר</h2>
+ <ol class="rules">
+  <li><b>ממשיכים</b> עד שמגיעים למדגם שתוכנן.</li>
+  <li><b>עוצרים</b> אם חלוקת התנועה נשברה. זה באג, לא תוצאה.</li>
+  <li><b>פוסלים</b> אם מדד ההגנה נפגע.</li>
+  <li><b>B עולה לאוויר</b> אם המדד שקובע השתפר באופן מובהק.</li>
+  <li><b>אחרת נשארים עם A.</b></li>
+ </ol>
+</section>
+
+</div>
+<p class="foot">התנועה כאן מדומה. בפועל הספירה מגיעה מאירועי ה-dataLayer שכבר קיימים במשפך.</p>
+</div>
+<script>
+const REC=[[1, 1, 748, 138, 752, 174, 134, 138, 172, 174], [1, 2, 740, 135, 760, 175, 133, 135, 169, 175], [1, 3, 748, 143, 752, 183, 139, 143, 180, 183], [1, 4, 738, 170, 762, 180, 165, 170, 173, 180], [1, 5, 775, 168, 725, 159, 165, 168, 157, 159], [1, 6, 750, 129, 750, 168, 124, 129, 164, 168], [1, 7, 782, 129, 718, 173, 126, 129, 164, 173], [1, 8, 764, 155, 736, 172, 152, 155, 168, 172], [1, 9, 715, 137, 785, 185, 134, 137, 182, 185], [2, 10, 725, 175, 775, 174, 8, 175, 10, 174], [2, 11, 770, 162, 730, 185, 7, 162, 9, 185], [2, 12, 756, 178, 744, 183, 5, 178, 10, 183], [2, 13, 749, 192, 751, 179, 8, 192, 8, 179], [2, 14, 723, 152, 777, 195, 12, 152, 9, 195], [2, 15, 732, 185, 768, 172, 10, 185, 8, 172], [2, 16, 760, 181, 740, 169, 11, 181, 8, 169], [2, 17, 760, 185, 740, 173, 9, 185, 7, 173], [3, 18, 769, 181, 731, 194, 289, 446, 275, 538], [3, 19, 759, 172, 741, 188, 270, 447, 300, 552], [3, 20, 747, 184, 753, 192, 268, 442, 313, 585], [3, 21, 713, 167, 787, 233, 253, 415, 291, 578], [3, 22, 756, 183, 744, 199, 276, 441, 283, 552], [3, 23, 769, 173, 731, 187, 267, 463, 286, 556], [3, 24, 757, 171, 743, 207, 269, 452, 281, 552], [3, 25, 751, 169, 749, 176, 287, 448, 286, 541]];
+let A=0.05,MDE=0.10,DAILY=1500,Z_A2=1.959964,Z_PW=0.841621,Z_A1=1.644854;const SRM_P=0.001;
+const ZA2={.01:2.575829,.05:1.959964,.1:1.644854},ZA1={.01:2.326348,.05:1.644854,.1:1.281552},ZPW={.8:.841621,.9:1.281552};
+const PAR=[{id:"alpha",he:"רמת מובהקות",o:[[.01,"0.01"],[.05,"0.05"],[.1,"0.10"]],d:.05},{id:"power",he:"עוצמה סטטיסטית",o:[[.8,"80%"],[.9,"90%"]],d:.8},
+ {id:"mde",he:"שיפור מינימלי לזיהוי",o:[[.05,"5%"],[.1,"10%"],[.15,"15%"],[.2,"20%"]],d:.1},{id:"daily",he:"מבקרים ביום",o:[[750,"750"],[1500,"1,500"],[3000,"3,000"]],d:1500}];
+const PV={};PAR.forEach(p=>PV[p.id]=p.d);
+function applyParams(){A=PV.alpha;Z_A2=ZA2[A];Z_A1=ZA1[A];Z_PW=ZPW[PV.power];MDE=PV.mde;DAILY=PV.daily}
+/* every metric = numerator event / denominator event, counted per arm */
+const MET={cvr:{he:"נרשמים מתוך מבקרים בדף",ev:"account_created / landing_view",n:"acc",d:"land",dir:1},
+ start:{he:"התחילו את השאלון מתוך מבקרים בדף",ev:"quiz_start / landing_view",n:"start",d:"land",dir:1},
+ comp:{he:"סיימו את השאלון מתוך מי שהתחיל",ev:"quiz_complete / quiz_start",n:"comp",d:"start",dir:1},
+ gate:{he:"נרשמים מתוך מי שראה את השער",ev:"account_created / gate_view",n:"acc",d:"gate",dir:1},
+ res:{he:"הגיעו לתוצאה מתוך הנרשמים",ev:"result_view / account_created",n:"res",d:"acc",dir:1},
+ bounce:{he:"מיילים חוזרים מתוך הנרשמים",ev:"bounced / account_created",n:"bounce",d:"acc",dir:-1}};
+const KPI_OPTS=["cvr","start","comp","gate"],GRD_OPTS=["res","bounce","comp","start","none"];
+const V1={s:.60,g:.62,a:.5376,r:.97,c:.62,b:.05},G10={s:.60,g:.80,a:.479,r:.965,c:.60,b:.05};
+const TESTS=[
+ {key:"gate10",name:"שער אחרי שאלה 10",A:"השער מופיע אחרי שאלה 20",B:"השער מוקדם לאחרי שאלה 10, עם הכותרת Save your progress",hyp:"מי שנוטש לפני שאלה 20 לא מגיע לשער בכלל. שער מוקדם יותר יתפוס חלק מהם.",kpi0:"cvr",grd0:"res",rA:V1,rB:G10,aff:["quiz","gate","quiz2"]},
+ {key:"noRange",name:"שער בלי טווח ציון",A:"השער מראה טווח ציון, למשל בין 110 ל-119",B:"אותו שער, בלי הטווח",hyp:"מי שלא יודע כלום על הציון סקרן יותר, ולכן יותר אנשים יירשמו.",kpi0:"cvr",grd0:"bounce",rA:G10,rB:G10,aff:["gate"]},
+ {key:"q1",name:"שאלה 1 בדף הנחיתה",A:"דף נחיתה עם כרטיס הסבר וכפתור התחלה",B:"שאלה 1 מופיעה ישר מתחת לכותרת",hyp:"שאלה אמיתית על המסך גורמת לאנשים להתחיל לענות, במקום לשקול אם ללחוץ.",kpi0:"cvr",grd0:"comp",rA:G10,rB:{s:.75,g:.80,a:.4333,r:.965,c:.52,b:.05},aff:["landing","quiz"]}];
+TESTS.forEach(t=>{t.kpi=t.kpi0;t.grd=t.grd0});
+const trueRate=(r,k)=>({cvr:r.s*r.g*r.a,start:r.s,comp:r.c,gate:r.a})[k];
+const EV=["land","start","gate","acc","res","comp","bounce"];
+const rate=(o,k)=>o&&o[MET[k].d]?o[MET[k].n]/o[MET[k].d]:0;
+const DEC={ship:"B עולה לאוויר",keep:"נשארים עם A",rej:"נפסלה: מדד ההגנה",srm:"נעצרה: חלוקה שבורה",kill:"נעצרה ידנית"};
+const DEC_SHORT={ship:"עלתה",keep:"נשארים עם A",rej:"נפסלה",srm:"נעצרה",kill:"נעצרה"};
+const INS={ship:"ההשערה אוששה. גרסה B עלתה לאוויר והיא הבסיס של הבדיקה הבאה.",keep:"אין הבדל מובהק. נשארים עם A, וההשערה לא הוכחה.",rej:"מדד ההגנה נפגע. B לא עולה לאוויר, גם אם המדד הראשי השתפר.",srm:"חלוקת התנועה השתבשה. מתקנים את התקלה ומריצים מחדש.",kill:"נעצרה ידנית לפני שהגיעה למדגם. אין מסקנות."};
+function erf(x){const s=Math.sign(x);x=Math.abs(x);const t=1/(1+.3275911*x);return s*(1-((((1.061405429*t-1.453152027)*t+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-x*x))}
+const Phi=z=>.5*(1+erf(z/Math.SQRT2));
+const nArm=p1=>{const p2=p1*(1+MDE);return Math.ceil((Z_A2+Z_PW)**2*(p1*(1-p1)+p2*(1-p2))/(p2-p1)**2)};
+const z2=(x1,n1,x2,n2)=>{const p=(x1+x2)/(n1+n2),se=Math.sqrt(p*(1-p)*(1/n1+1/n2));return se?(x2/n2-x1/n1)/se:0};
+const pct=(x,d=1)=>(100*x).toFixed(d)+"%";const fmt=n=>n.toLocaleString("en-US");
+const ltr=s=>'<span dir="ltr">'+s+'</span>';
+let rng=Math.random;function seed(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const bin=(n,p)=>{let k=0;for(let i=0;i<n;i++)if(rng()<p)k++;return k};
+function simArm(n,r){const start=bin(n,r.s),gate=bin(start,r.g),acc=bin(gate,r.a);return{land:n,start,gate,acc,res:bin(acc,r.r),comp:bin(start,r.c),bounce:bin(acc,r.b)}}
+/* true rates follow what is live: each shipped layer changes the rates the next test starts from */
+function rates(c){const r={...(c.gate10?G10:V1)};if(c.q1){r.s*=1.25;r.c*=.84;r.a*=.905}return r}
+function simDay(i){const t=TESTS[i],L=liveCfg(),na=bin(DAILY,.5);return[simArm(na,rates(L)),simArm(DAILY-na,rates({...L,[t.key]:1}))]}
+/* REC holds only CVR + the default guardrail, so it is replayed only while every test keeps its default metrics */
+function recDay(d){const[t,,vc,ac,vv,av,gch,gcb,gvh,gvb]=REC[d],g=TESTS[t-1].grd0,m=MET[g],arm=(l,a,h,b)=>{const o={land:l,acc:a};o[m.n]=h;o[m.d]=b;return o};return[arm(vc,ac,gch,gcb),arm(vv,av,gvh,gvb)]}
+const isDefault=()=>TESTS.every(t=>t.kpi===t.kpi0&&t.grd===t.grd0)&&PAR.every(p=>PV[p.id]===p.d);
+
+/* ---------- funnel mockups (product copy stays in English) ---------- */
+const curve=hl=>'<svg viewBox="0 0 120 40" width="100%" height="34" aria-hidden="true">'+(hl?'<rect x="70" y="2" width="12" height="38" fill="#2f5bea33"/>':'')+'<path d="M2 38 C30 38 40 4 60 4 S90 38 118 38" fill="none" stroke="#2f5bea" stroke-width="2"/><line x1="60" y1="4" x2="60" y2="38" stroke="#9ca3af" stroke-dasharray="2 2"/></svg>';
+const opts='<div class="m-opt">A</div><div class="m-opt">B</div><div class="m-opt">C</div><div class="m-opt">D</div>';
+const scr={
+ ad:()=>'<div class="m-ad"><div style="font-size:10px;opacity:.85">What\'s your IQ?</div><div class="m-h" style="font-size:20px">Free IQ Test</div><div style="font-size:10px;opacity:.9">20 questions. Free.</div><div class="m-btn">Start the test</div></div>',
+ landing:q1=>q1?'<div class="m-logo">IQly</div><div class="m-h">Free IQ Test</div><div class="m-s">Question 1 of 20</div><div class="m-bar"><i style="width:5%"></i></div><div class="m-grid">'+'<span></span>'.repeat(9)+'</div>'+opts
+  :'<div class="m-logo">IQly</div><div class="m-h">Free IQ Test</div><div class="m-s">20 questions, free, score at the end</div><div class="m-card">✓ 20 short questions<br>✓ Your score + breakdown<br>✓ No password, no card</div>'+curve(0)+'<div class="m-btn">Start the test</div>',
+ quiz:(a,b)=>'<div class="m-logo">IQly</div><div class="m-s">Question '+a+' of 20</div><div class="m-bar"><i style="width:'+(a*5)+'%"></i></div><div class="m-grid">'+'<span></span>'.repeat(9)+'</div>'+opts+'<div class="m-s" style="margin-top:6px">… to question '+b+'</div>',
+ gate:(early,range)=>'<div class="m-logo">IQly</div><div class="m-h" style="font-size:13px">'+(early?'Save your progress':'Your score is ready')+'</div>'+(range?'<div class="m-s"><b>Your score is between 110 and 119</b></div>'+curve(1):'<div class="m-s">Create a free account to see it.</div>')+'<div class="m-s">Your score is saved, with a breakdown by area.</div><div class="m-btn g">Continue with Google</div><div class="m-field">you@email.com</div><div class="m-btn">'+(early?'Save and continue':'See my score')+'</div>',
+ result:()=>'<div class="m-logo">IQly</div><div class="m-s">Your IQ score</div><div class="m-iq">114</div><div class="m-s" style="margin-top:4px">Higher than 82% of people · 16 of 20 correct</div><div class="m-dom"><span>Patterns</span><i style="width:85%"></i><span>Numbers</span><i style="width:70%"></i><span>Words</span><i style="width:60%"></i><span>Logic</span><i style="width:90%"></i></div><div class="m-s" style="margin-top:6px">A short test, not a clinical diagnosis.</div>',
+ email:()=>'<div class="m-mail-h">From: IQly<br>Subject: <b style="color:#14161b">Your IQ score is saved</b></div><div class="m-logo">IQly</div><div class="m-s">Your score</div><div class="m-iq" style="font-size:22px">114</div><div class="m-s" style="margin-top:6px">See your breakdown in Patterns, Numbers, Words and Logic.</div><div class="m-btn">See my breakdown</div>'};
+function screens(c){const s=[{k:"ad",he:"מודעה",h:scr.ad()},{k:"landing",he:"דף נחיתה",h:scr.landing(c.q1)}],f=c.q1?2:1;
+ if(c.gate10)s.push({k:"quiz",he:"שאלות "+f+" עד 10",h:scr.quiz(f,10)},{k:"gate",he:"שער הרשמה",h:scr.gate(1,!c.noRange),conv:1},{k:"quiz2",he:"שאלות 11 עד 20",h:scr.quiz(11,20)});
+ else s.push({k:"quiz",he:"שאלות "+f+" עד 20",h:scr.quiz(f,20)},{k:"gate",he:"שער הרשמה",h:scr.gate(0,!c.noRange),conv:1});
+ s.push({k:"result",he:"תוצאה",h:scr.result()},{k:"email",he:"מייל",h:scr.email()});return s}
+function shipped(){return S.tests.map((T,k)=>T.dec==="ship"?k:-1).filter(k=>k>=0)}
+function liveCfg(){const c={};shipped().forEach(k=>c[TESTS[k].key]=1);return c}
+function lane(tag,title,cfg,chgKey){const sh=shipped();
+ return '<div class="lane"><div class="lane-h"><span class="tag t'+tag+'">'+tag+'</span>'+title+'</div><div class="steps">'+screens(cfg).map((x,i)=>{
+  const chg=chgKey&&TESTS.find(t=>t.key===chgKey).aff.includes(x.k);
+  const chips=(x.conv?'<span class="chip c-conv">כאן נרשמים</span>':'')+sh.filter(k=>TESTS[k].aff.includes(x.k)).map(k=>'<span class="chip c-lay">שכבה '+(sh.indexOf(k)+1)+'</span>').join("")+(chg?'<span class="chip c-chg">השינוי שנבדק</span>':'');
+  return (i?'<span class="arrow" aria-hidden="true">←</span>':'')+'<div class="step'+(chg?' chg':'')+'"><div class="phone">'+x.h+'</div><div class="lbl">'+x.he+'</div><div class="chips">'+chips+'</div></div>'}).join("")+'</div></div>'}
+let fsig="";
+function renderFunnel(){const sig=S.i+"|"+S.done+"|"+shipped().join();if(sig===fsig)return;fsig=sig;
+ const live=liveCfg(),v="v"+(shipped().length+1),F=document.getElementById("funnel");
+ if(S.done){F.innerHTML=lane("A","המשפך שבאוויר בסוף התור, "+v,live,null);return}
+ const t=TESTS[S.i];F.innerHTML=lane("A","הגרסה החיה, "+v,live,null)+lane("B",v+" ועוד השינוי של בדיקה "+(S.i+1)+": "+t.name,{...live,[t.key]:1},t.key)}
+
+/* ---------- engine ---------- */
+let S,timer=null,mode="rec",speed=250,chart;
+function reset(){stop();rng=seed(Date.now()%1e9);S={day:0,i:0,oA:{},oB:{},tests:TESTS.map(()=>({})),done:false};
+ const base=planTest(0,1);fsig="";renderKpi();
+ document.getElementById("log").innerHTML="";log("שלוש בדיקות בבקלוג. בדיקה 1 נמדדת לפי "+MET[TESTS[0].kpi].he+", מול בסיס של "+ltr(pct(base))+", ותצטרך "+fmt(S.tests[0].n)+" "+unitOf(TESTS[0].kpi)+" בכל גרסה.",1);
+ chart.data.labels=[];chart.data.datasets.forEach(d=>d.data=[]);chart.update();render()}
+function log(s,ev){const d=document.createElement("div");if(ev)d.className="ev";d.innerHTML=s;const L=document.getElementById("log");L.appendChild(d);L.scrollTop=L.scrollHeight}
+/* baseline for a test's own KPI: the previous test's winning arm, observed; the first test uses the planned v1 rate */
+function planTest(k,day){const t=TESTS[k],P=k&&S.tests[k-1],w=P&&(P.dec==="ship"?P.oB:P.oA),obs=w&&rate(w,t.kpi);
+ const base=obs||trueRate(rates(liveCfg()),t.kpi);S.tests[k]={n:nArm(base),base,start:day};return base}
+const unitOf=k=>MET[k].d==="land"?"מבקרים בדף":MET[k].d==="start"?"מתחילי שאלון":"צופים בשער";
+function step(){if(S.done)return stop();S.day++;const i=S.i,t=TESTS[i],[a,b]=mode==="rec"?recDay(S.day-1):simDay(i),T=S.tests[i];
+ EV.forEach(e=>{S.oA[e]=(S.oA[e]||0)+(a[e]||0);S.oB[e]=(S.oB[e]||0)+(b[e]||0)});
+ const K=MET[t.kpi],xa=S.oA[K.n],na=S.oA[K.d],xb=S.oB[K.n],nb_=S.oB[K.d];
+ chart.data.labels.push(S.day);const ds=chart.data.datasets;ds[0].data.push(xa/na*100);ds[1].data.push(xb/nb_*100);ds[2].data.push(T.base*100);
+ const vc=S.oA.land,vv=S.oB.land;
+ Object.assign(T,{oA:{...S.oA},oB:{...S.oB},nA:na,nB:nb_,cc:xa/na,cv:xb/nb_,z:z2(xa,na,xb,nb_),srm:1-erf(Math.abs(vc-vv)/Math.sqrt(vc+vv)/Math.SQRT2)});
+ T.p=2*(1-Phi(Math.abs(T.z)));
+ if(t.grd==="none"){T.gHeld=true;T.gc=T.gv=null}else{const G=MET[t.grd];T.gc=rate(S.oA,t.grd);T.gv=rate(S.oB,t.grd);T.gHeld=!(G.dir*z2(S.oA[G.n],S.oA[G.d],S.oB[G.n],S.oB[G.d])<-Z_A1)}
+ const up=(T.cv-T.cc)*K.dir>0;
+ if(Math.min(na,nb_)>=T.n){let dec;if(T.srm<SRM_P)dec="srm";else if(!T.gHeld)dec="rej";else if(T.p<A&&up)dec="ship";else dec="keep";
+  T.dec=dec;T.end=S.day;const lift=T.cv/T.cc-1;
+  log("יום "+S.day+": בדיקה "+(i+1)+" הגיעה ל-"+fmt(T.n)+" "+unitOf(t.kpi)+" בכל גרסה. "+K.he+": "+ltr(pct(T.cc))+" ב-A מול "+ltr(pct(T.cv))+" ב-B ("+ltr((lift>=0?"+":"")+pct(lift))+"), "+ltr(T.p<1e-4?"p < 0.0001":"p = "+T.p.toFixed(4))+". "+(t.grd==="none"?"בלי מדד הגנה":"מדד ההגנה "+(T.gHeld?"החזיק":"נשבר ("+ltr(pct(T.gc)+" → "+pct(T.gv))+")"))+". <b>ההחלטה: "+DEC[dec]+".</b>",1);
+  advance()}
+ chart.update("none");render()}
+function advance(){S.i++;S.oA={};S.oB={};
+ if(S.i<TESTS.length){const nt=TESTS[S.i],base=planTest(S.i,S.day+1);renderKpi();log("בדיקה "+(S.i+1)+" מתחילה ביום "+(S.day+1)+" מעל הגרסה החיה. המדד שקובע: "+MET[nt.kpi].he+", בסיס "+ltr(pct(base))+". צריך "+fmt(S.tests[S.i].n)+" "+unitOf(nt.kpi)+" בכל גרסה.")}
+ else{S.done=true;log("הבקלוג ריק. כל הבדיקות הוכרעו.",1);stop()}}
+function kill(){if(S.done)return;const T=S.tests[S.i];T.dec="kill";T.end=S.day;log("יום "+S.day+": בדיקה "+(S.i+1)+" נעצרה ידנית. נשארים עם A ועוברים לבדיקה הבאה.",1);advance();chart.update("none");render()}
+const COL={ship:"#1e8e3e",keep:"#5f6368",rej:"#d93025",srm:"#b45309",kill:"#b45309"};
+function render(){document.getElementById("dayl").textContent="יום "+S.day;
+ document.getElementById("now").innerHTML=S.done?"<b>כל שלוש הבדיקות הוכרעו.</b> למטה רואים איזה משפך נשאר באוויר.":"<b>עכשיו בבדיקה, "+(S.i+1)+" מתוך 3:</b> "+TESTS[S.i].name+". "+TESTS[S.i].B+".";
+ renderFunnel();
+ document.getElementById("queue").innerHTML=TESTS.map((t,k)=>{const T=S.tests[k],run=k===S.i&&!S.done,has=T.nA;
+  const b=T.dec?'<span class="badge b-'+T.dec+'">'+DEC[T.dec]+'</span>':run?'<span class="badge b-run">רצה עכשיו</span>':'<span class="badge">ממתינה</span>';
+  const prog=T.n&&has?Math.min(1,Math.min(T.nA,T.nB)/T.n):0;
+  return '<div class="test'+(run?' run':'')+'"><div class="top"><span class="name">'+(k+1)+'. '+t.name+'</span>'+b+'</div>'+
+  (T.n?'<div class="stats"><span>'+unitOf(t.kpi)+' בכל גרסה</span><b>'+(has?fmt(Math.min(T.nA,T.nB))+' / ':'')+fmt(T.n)+'</b></div><div class="bar"><i style="width:'+(prog*100)+'%"></i></div>':'')+
+  (has?'<div class="stats"><span>A</span><b>'+pct(T.cc)+'</b><span>B</span><b>'+pct(T.cv)+'</b><span>p</span><b>'+(T.p<1e-4?'<0.0001':T.p.toFixed(3))+'</b>'+(T.gc==null?'':'<span>מדד הגנה</span><b class="'+(T.gHeld?'ok':'bad')+'">'+pct(T.gc)+' → '+pct(T.gv)+'</b>')+'</div>':'')+(run&&has?'<button class="kill" onclick="kill()">עצירת בדיקה</button>':'')+'</div>'}).join("");
+ renderBacklog();lockSettings();
+ const P=document.getElementById("play");P.textContent=timer?"❚❚ עצירה":S.done?"✓ הסתיים":"▶ הרצת התור";P.disabled=S.done}
+function renderBacklog(){document.getElementById("backlog").innerHTML=TESTS.map((t,k)=>{const T=S.tests[k],run=k===S.i&&!S.done;
+ const b=T.dec?'<span class="badge b-'+T.dec+'">'+DEC[T.dec]+'</span>':run?'<span class="badge b-run">רצה עכשיו</span>':'<span class="badge">ממתינה</span>';
+ const r=rates(liveCfg()),share={land:1,start:r.s,gate:r.s*r.g}[MET[t.kpi].d]||1;
+ const row=(h,v)=>'<dt>'+h+'</dt><dd>'+v+'</dd>';
+ return '<div class="test exp"><div class="top"><span class="name">'+(k+1)+'. '+t.name+'</span>'+b+'</div><dl>'+
+  row("השינוי",t.B+'<br><span class="muted">לפני: '+t.A+'</span>')+
+  row("מטרה","עלייה של לפחות "+ltr(pct(MDE,0))+" במדד: "+MET[t.kpi].he+", ביחס לבסיס.")+
+  row("השערה",t.hyp)+
+  row("מדד הגנה",t.grd==="none"?"בלי":MET[t.grd].he)+
+  row("קוד",'<span class="muted">לא מקושר</span>')+
+  row("מדגם ומשך זמן",T.n?fmt(T.n)+" "+unitOf(t.kpi)+" לגרסה, בערך "+Math.ceil(T.n/(DAILY/2*share))+" ימים":"מחושב כשהבדיקה מתחילה")+
+  (T.start&&(T.nA||T.end)?row("ימים",T.end?"יום "+T.start+" עד יום "+T.end:"מיום "+T.start+", רצה"):"")+
+  (T.dec&&T.nA?row("תוצאה",ltr("A "+pct(T.cc))+" מול "+ltr("B "+pct(T.cv))+", "+ltr(T.p<1e-4?"p < 0.0001":"p = "+T.p.toFixed(4))+(T.gc==null?"":". מדד הגנה "+ltr(pct(T.gc)+" → "+pct(T.gv)))):"")+
+  (T.dec?row("תובנה",INS[T.dec]):"")+'</dl></div>'}).join("")}
+function renderParams(){document.getElementById("params").innerHTML=PAR.map(p=>'<label>'+p.he+'<select data-p="'+p.id+'">'+p.o.map(([v,l])=>'<option value="'+v+'"'+(v===PV[p.id]?' selected':'')+'>'+l+'</option>').join("")+'</select></label>').join("");
+ document.querySelectorAll("#params select").forEach(el=>el.onchange=()=>{PV[el.dataset.p]=+el.value;applyParams();renderParams();forceRand();reset()})}
+function forceRand(){if(!isDefault()&&mode==="rec"){mode="rand";document.querySelectorAll("#mode button").forEach(x=>{const on=x.dataset.m==="rand";x.classList.toggle("on",on);x.setAttribute("aria-pressed",on)})}}
+function lockSettings(){const L=S.day>0;document.querySelectorAll("#params select,#kpi select").forEach(el=>el.disabled=L);document.getElementById("plock").hidden=!L}
+function renderKpi(){const opt=(list,cur,g)=>list.map(k=>'<option value="'+k+'"'+(k===cur?' selected':'')+'>'+(k==="none"?"בלי מדד הגנה":MET[k].he)+'</option>').join("");
+ document.getElementById("kpi").innerHTML=TESTS.map((t,k)=>{const T=S.tests[k];return '<tr><td>'+(k+1)+'. '+t.name+'</td><td><select data-k="'+k+'" data-f="kpi" aria-label="המדד שקובע בבדיקה '+(k+1)+'">'+opt(KPI_OPTS,t.kpi)+'</select><code class="ev">'+MET[t.kpi].ev+'</code></td><td><select data-k="'+k+'" data-f="grd" aria-label="מדד ההגנה בבדיקה '+(k+1)+'">'+opt(GRD_OPTS,t.grd)+'</select>'+(t.grd==="none"?'':'<code class="ev">'+MET[t.grd].ev+'</code>')+'</td><td>'+(T&&T.n?fmt(T.n)+' '+unitOf(t.kpi):'מחושב כשהבדיקה מתחילה')+'</td></tr>'}).join("");
+ document.querySelectorAll("#kpi select").forEach(el=>el.onchange=()=>{TESTS[+el.dataset.k][el.dataset.f]=el.value;forceRand();reset()})}
+function stop(){clearInterval(timer);timer=null;if(S)render()}
+function play(){if(timer)return stop();timer=setInterval(step,speed);render()}
+const bands={id:"bands",beforeDraw(c){const{ctx,chartArea:a,scales:{x}}=c;if(!S)return;const cw=x.width/Math.max(1,c.data.labels.length);S.tests.forEach((T,k)=>{if(!T.start)return;const end=T.end||S.day;if(end<T.start)return;
+ const x0=Math.max(a.left,x.getPixelForValue(T.start-1)-cw/2),x1=Math.min(a.right,x.getPixelForValue(end-1)+cw/2),col=T.dec?COL[T.dec]:"#2f5bea";
+ ctx.save();ctx.fillStyle=col+"12";ctx.fillRect(x0,a.top,x1-x0,a.height);ctx.fillStyle=col;ctx.font="700 14px Heebo,sans-serif";ctx.textAlign="center";ctx.direction="rtl";
+ const cx=(x0+x1)/2,w=x1-x0-6;let l1="בדיקה "+(k+1),l2=T.dec?DEC_SHORT[T.dec]:"רצה";if(ctx.measureText(l1).width>w)l1=String(k+1);if(ctx.measureText(l2).width>w)l2="";ctx.fillText(l1,cx,a.top+17);ctx.fillText(l2,cx,a.top+35);ctx.restore()})}};
+Chart.defaults.font.family="Heebo,Inter,system-ui,sans-serif";Chart.defaults.font.size=14;Chart.defaults.color="#374151";
+const gap=c=>S&&S.tests.some(T=>T.end&&c.p0DataIndex===T.end-1);
+chart=new Chart(document.getElementById("ch"),{type:"line",data:{labels:[],datasets:[
+ {label:"A: הגרסה החיה",borderColor:"#8a8f98",backgroundColor:"#8a8f98",data:[],pointRadius:3,borderWidth:3,tension:.2,segment:{borderColor:c=>gap(c)?"transparent":undefined}},
+ {label:"B: הגרסה החדשה",borderColor:"#2f5bea",backgroundColor:"#2f5bea",data:[],pointRadius:3,borderWidth:3,tension:.2,segment:{borderColor:c=>gap(c)?"transparent":undefined}},
+ {label:"הבסיס שתוכנן",borderColor:"#14161b",borderDash:[5,4],data:[],pointRadius:0,borderWidth:1.5,stepped:true,segment:{borderColor:c=>gap(c)?"transparent":undefined}}]},
+ plugins:[bands],options:{maintainAspectRatio:false,animation:false,interaction:{mode:"index",intersect:false},
+ scales:{y:{ticks:{callback:v=>v+"%"}},x:{title:{display:true,text:"יום"},grid:{display:false}}},
+ plugins:{legend:{position:"bottom",rtl:true,labels:{boxWidth:16,padding:16}},tooltip:{rtl:true,callbacks:{label:c=>c.dataset.label+": "+c.parsed.y.toFixed(1)+"%"}}}}});
+const seg=(id,fn)=>document.querySelectorAll("#"+id+" button").forEach(b=>{b.setAttribute("aria-pressed",b.classList.contains("on"));b.onclick=()=>{document.querySelectorAll("#"+id+" button").forEach(x=>{x.classList.toggle("on",x===b);x.setAttribute("aria-pressed",x===b)});fn(b)}});
+document.getElementById("play").onclick=play;document.getElementById("reset").onclick=reset;
+seg("mode",b=>{mode=b.dataset.m;if(mode==="rec"){TESTS.forEach(t=>{t.kpi=t.kpi0;t.grd=t.grd0});PAR.forEach(p=>PV[p.id]=p.d);applyParams();renderParams()}reset()});
+function route(){const h=["dash","backlog","settings"].includes(location.hash.slice(1))?location.hash.slice(1):"dash";
+ ["dash","backlog","settings"].forEach(x=>document.getElementById("p-"+x).hidden=x!==h);
+ document.querySelectorAll(".nav a").forEach(a=>a.getAttribute("href")==="#"+h?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));if(h==="dash")chart.resize()}
+addEventListener("hashchange",route);
+renderParams();reset();route();
+</script></body></html>

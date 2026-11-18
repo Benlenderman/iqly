@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free IQ Test | IQly</title>
+<style>
+  :root {
+    --ink: #14213d;
+    --muted: #5b6475;
+    --line: #dde2ea;
+    --bg: #f6f8fb;
+    --card: #ffffff;
+    --accent: #2f5bea;
+    --accent-ink: #ffffff;
+    --picked: #e8eefd;
+    --error: #c62828;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.45;
+  }
+  .wrap { max-width: 480px; margin: 0 auto; padding: 16px 16px 40px; min-height: 100vh; display: flex; flex-direction: column; }
+  .logo { font-weight: 800; font-size: 20px; letter-spacing: -0.5px; margin-bottom: 24px; }
+  .logo span { color: var(--accent); }
+  h1 { font-size: 34px; line-height: 1.15; margin: 8px 0 12px; letter-spacing: -0.5px; }
+  h2 { font-size: 24px; line-height: 1.25; margin: 0 0 16px; }
+  .sub { color: var(--muted); margin: 0 0 24px; }
+  .btn {
+    display: block; width: 100%; min-height: 52px; padding: 14px 16px;
+    border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    font: inherit; font-weight: 600; cursor: pointer; text-align: center;
+  }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn:focus-visible, .opt:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .link { background: none; border: 0; color: var(--muted); font: inherit; padding: 8px 0; cursor: pointer; text-decoration: underline; }
+  .top { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 15px; min-height: 38px; }
+  .bar { height: 6px; background: var(--line); border-radius: 3px; margin: 8px 0 24px; overflow: hidden; }
+  .bar > div { height: 100%; background: var(--accent); transition: width .2s; }
+  .q { font-size: 20px; font-weight: 600; margin: 0 0 20px; white-space: pre-line; }
+  .opts { display: grid; gap: 10px; }
+  .opt {
+    width: 100%; min-height: 54px; padding: 12px 16px; text-align: left;
+    border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink);
+    font: inherit; cursor: pointer;
+  }
+  .opt.picked { background: var(--picked); border-color: var(--accent); }
+  .center { flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+  .big { font-size: 26px; font-weight: 700; }
+  .spinner { width: 44px; height: 44px; margin: 0 auto 20px; border: 4px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .range { font-size: 20px; font-weight: 700; margin: 0 0 12px; }
+  .gate .curve { margin: 0 auto 16px; }
+  .btn-google { display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .g { width: 26px; height: 26px; padding: 4px; background: #fff; border-radius: 50%; flex: none; }
+  .areas { list-style: none; padding: 0; margin: 0 auto 16px; width: 100%; max-width: 320px; text-align: left; }
+  .areas li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .or { text-align: center; color: var(--muted); margin: 14px 0; }
+  input[type=email] { width: 100%; min-height: 52px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; font: inherit; margin-bottom: 10px; }
+  .small { font-size: 14px; color: var(--muted); margin: 6px 0 0; }
+  .small a { color: var(--accent); }
+  .error { color: var(--error); font-size: 15px; margin: 0 0 10px; }
+  .score { font-size: 88px; font-weight: 800; line-height: 1; margin: 8px 0 16px; color: var(--accent); }
+  .note { font-size: 15px; color: var(--muted); }
+  #app { flex: 1; display: flex; flex-direction: column; }
+  .land { padding-bottom: 84px; }
+  .land h1 { font-size: 44px; font-weight: 800; letter-spacing: -1px; margin-top: 0; }
+  .land .sub { margin-bottom: 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 16px 12px; }
+  .gets { list-style: none; padding: 0; margin: 0 0 16px; display: grid; gap: 10px; }
+  .gets li { padding-left: 26px; position: relative; }
+  .gets li::before { content: ""; position: absolute; left: 4px; top: 9px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  .curve { width: 100%; max-width: 360px; height: auto; display: block; margin: 0 auto; }
+  .curve text { font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; fill: var(--muted); }
+  .land-cta { position: fixed; left: 16px; right: 16px; width: auto; bottom: calc(16px + env(safe-area-inset-bottom)); }
+  .outside { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 15px; margin: 16px 0; }
+  @media (min-width: 768px) {
+    body { font-size: 18px; }
+    .wrap { max-width: 624px; padding: 32px 32px 56px; } /* 560px column, centered, on every screen */
+    h1 { font-size: 52px; }
+    h2 { font-size: 30px; }
+    .q { font-size: 24px; }
+    .opts { grid-template-columns: 1fr 1fr; }
+    .land { padding-bottom: 0; }
+    .land h1 { font-size: 64px; }
+    .land-cta { position: static; width: 100%; margin-top: 24px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } .bar > div { transition: none; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="logo">IQ<span>ly</span></div>
+  <div id="app"></div>
+</main>
+<script>
+// ===== CONFIG: each variant in stage 7 changes exactly one line here =====
+const CONFIG = {
+  gateAfter: 20,           // Test 1. 20 = gate after the last question (control). 10 = gate after question 10 (variant)
+  gateShows: "range",      // Test 2. "range" = gate shows the 10-point range (control). "hidden" = same gate without the range (variant)
+  firstScreen: "landing",  // Test 3. "landing" = landing page with a Start button (control). "question" = question 1 on the landing page (variant)
+  interstitialAfter: 15,   // "Only 5 questions left" shows after this question
+  interstitialMs: 2000,    // interstitial auto-advance, in ms
+  calcMs: 3000,            // "Calculating your score" screen length, in ms
+  scoreCenter: 13,         // correct answers that equal IQ 100 (assumption)
+  pointsPerAnswer: 5,      // IQ points per correct answer (assumption)
+  scoreFloor: 70,          // lowest score shown (assumption)
+};
+
+// Two ladders of 10, each from easy to hard. "a" is the correct option, matched by text. "area" groups the result breakdown.
+const QUESTIONS = [
+  { q: "Mia is taller than Leo. Ava is shorter than Leo. Who is the tallest?", o: ["Mia", "Leo", "Ava", "Can't tell"], a: "Mia", area: "Logic" },
+  { q: "What comes next? 1, 4, 9, 16, 25, ?", o: ["30", "35", "36", "49"], a: "36", area: "Patterns" },
+  { q: "If A = 1, B = 2, C = 3 and so on, what is B + A + D?", o: ["6", "7", "8", "9"], a: "7", area: "Numbers" },
+  { q: "The day after tomorrow is Saturday. What day was yesterday?", o: ["Tuesday", "Wednesday", "Thursday", "Friday"], a: "Wednesday", area: "Logic" },
+  { q: "A box has red and blue marbles, 15 in total. There are 3 more red than blue. How many are blue?", o: ["6", "7", "9", "12"], a: "6", area: "Numbers" },
+  { q: "All roses are flowers. Some flowers fade quickly. Which must be true?", o: ["All roses fade quickly", "Some roses fade quickly", "No roses fade quickly", "None of these has to be true"], a: "None of these has to be true", area: "Logic" },
+  { q: "What comes next? 2, 3, 5, 9, 17, ?", o: ["25", "31", "33", "34"], a: "33", area: "Patterns" },
+  { q: "4 printers print 4 pages in 4 minutes. How many minutes do 8 printers need to print 16 pages?", o: ["2", "4", "8", "16"], a: "8", area: "Numbers" },
+  { q: "Find the missing number.\nRow 1: 2, 4, 8\nRow 2: 3, 9, 27\nRow 3: 4, ?, 64", o: ["12", "16", "20", "32"], a: "16", area: "Patterns" },
+  { q: "Which word is most nearly opposite to \"scarce\"?", o: ["plentiful", "rare", "small", "costly"], a: "plentiful", area: "Words" },
+  { q: "Hot is to cold as up is to ?", o: ["down", "high", "warm", "over"], a: "down", area: "Words" },
+  { q: "Which number does not belong?", o: ["3", "5", "7", "9"], a: "9", area: "Numbers" },
+  { q: "Thermometer is to temperature as odometer is to ?", o: ["speed", "distance", "time", "fuel"], a: "distance", area: "Words" },
+  { q: "If CAT is written as DBU, how is DOG written?", o: ["EPH", "EOH", "FPH", "DPH"], a: "EPH", area: "Words" },
+  { q: "Some cats are pets. All pets are loved. Which must be true?", o: ["All cats are loved", "Some cats are loved", "All loved things are cats", "No cats are loved"], a: "Some cats are loved", area: "Logic" },
+  { q: "A train goes 60 miles in 45 minutes. At the same speed, how far does it go in 2 hours?", o: ["120 miles", "150 miles", "160 miles", "180 miles"], a: "160 miles", area: "Numbers" },
+  { q: "Five people stand in a line. Nia is first. Max is last. Lu is somewhere in front of Jo. Kim is directly behind Jo. Who is in the middle?", o: ["Lu", "Jo", "Kim", "Nia"], a: "Jo", area: "Logic" },
+  { q: "What comes next? Z, X, U, Q, ?", o: ["K", "L", "M", "N"], a: "L", area: "Patterns" },
+  { q: "Author is to novel as composer is to ?", o: ["symphony", "piano", "orchestra", "concert"], a: "symphony", area: "Words" },
+  { q: "What comes next? 2, 6, 7, 21, 22, 66, ?", o: ["67", "68", "132", "198"], a: "67", area: "Patterns" },
+];
+const TOTAL = QUESTIONS.length;
+
+// ===== Tracking: one function, every event carries the variant and the ad id =====
+const url = new URLSearchParams(location.search);
+const BASE = {
+  variant: `gate${CONFIG.gateAfter}-${CONFIG.gateShows}-${CONFIG.firstScreen}`,
+  ad_id: url.get("utm_content"),
+};
+if (url.get("gclid")) BASE.gclid = url.get("gclid");
+window.dataLayer = window.dataLayer || [];
+function track(event, data) {
+  window.dataLayer.push({ event, ...BASE, ...data });
+}
+
+// ===== Scoring =====
+const iqFromCorrect = c => Math.max(CONFIG.scoreFloor, 100 + (c - CONFIG.scoreCenter) * CONFIG.pointsPerAnswer);
+const MAX_IQ = 100 + (20 - CONFIG.scoreCenter) * CONFIG.pointsPerAnswer; // all 20 correct
+const bandOf = iq => { const lo = Math.floor(iq / 10) * 10; return [lo, Math.min(lo + 9, MAX_IQ)]; };
+const countCorrect = (from, to) => answers.slice(from, to).filter((ans, i) => ans === QUESTIONS[from + i].a).length;
+function percentile(iq) {
+  // normal CDF, mean 100, SD 15 (Abramowitz-Stegun erf approximation)
+  const x = (iq - 100) / 15 / Math.SQRT2, t = 1 / (1 + 0.3275911 * Math.abs(x));
+  const erf = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+  const cdf = 0.5 * (1 + Math.sign(x) * erf);
+  return Math.min(99, Math.max(1, Math.round(cdf * 100)));
+}
+console.assert(iqFromCorrect(13) === 100 && iqFromCorrect(20) === 135 && iqFromCorrect(0) === 70, "score");
+console.assert(bandOf(115).join() === "110,119" && bandOf(70).join() === "70,79" && bandOf(135).join() === "130,135", "band");
+console.assert(percentile(100) === 50 && percentile(130) === 98, "percentile");
+
+// ===== State =====
+const shuffle = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const ORDER = QUESTIONS.map(q => shuffle(q.o)); // once per page load, so Back shows the same order
+const answers = new Array(TOTAL).fill(null);
+let started = false, gatePassed = false, gateBand = null, shownAt = 0, locked = false, interstitialShown = false;
+let current = -1; // index of the question on screen, -1 on any other screen
+const app = document.getElementById("app");
+const render = html => { app.innerHTML = html; window.scrollTo(0, 0); current = -1; };
+const canBack = i => i > 0 && !(gatePassed && i === CONFIG.gateAfter);
+function start() {
+  started = true;
+  track("quiz_start");
+  history.pushState(null, ""); // one extra entry, so browser Back lands in popstate instead of leaving the page
+}
+// Browser Back follows the in-page Back rules; on any other screen it stays put. The result is the end.
+window.addEventListener("popstate", () => {
+  history.pushState(null, "");
+  if (current >= 0 && canBack(current) && !locked) showQuestion(current - 1);
+});
+
+// ===== Screens =====
+// Bell curve from the landing page. With a band, the part of the curve inside it is shaded darker.
+const xOf = iq => 150 + (iq - 100) * 46.67 / 15; // 70..130 sit at x 57..243
+function curveSvg(band) {
+  const shape = "M10,56 C70,56 105,12 150,12 C195,12 230,56 290,56";
+  const label = band ? `Bell curve of IQ scores with your range, ${band[0]} to ${band[1]}, shaded. 100 is the average.` : "Bell curve of IQ scores. 100 is the average.";
+  return `
+          <svg class="curve" viewBox="0 0 300 98" role="img" aria-label="${label}">
+            <clipPath id="under"><path d="${shape} Z" /></clipPath>
+            <path d="${shape} Z" fill="var(--picked)" />
+            ${band ? `<rect x="${xOf(band[0])}" y="0" width="${xOf(band[1] + 1) - xOf(band[0])}" height="56" fill="var(--accent)" opacity="0.45" clip-path="url(#under)" />` : ""}
+            <path d="${shape}" fill="none" stroke="var(--accent)" stroke-width="3" />
+            <line x1="150" y1="12" x2="150" y2="56" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4 4" />
+            <line x1="10" y1="56" x2="290" y2="56" stroke="var(--line)" stroke-width="2" />
+            <g text-anchor="middle" aria-hidden="true">
+              <text x="57" y="73">70</text><text x="103" y="73">85</text><text x="150" y="73">100</text><text x="197" y="73">115</text><text x="243" y="73">130</text>
+              <text x="150" y="93">100 = average</text>
+            </g>
+          </svg>`;
+}
+const HEAD = `<h1>Free IQ Test</h1><p class="sub">20 questions. Free. Your score at the end.</p>`;
+function landing() {
+  if (CONFIG.firstScreen === "question") {
+    showQuestion(0);
+  } else {
+    render(`
+      <div class="land">
+        ${HEAD}
+        <div class="card">
+          <ul class="gets">
+            <li>4 areas: Patterns, Numbers, Words, Logic.</li>
+            <li>Your IQ score and where it sits on the scale.</li>
+            <li>No password. No credit card.</li>
+          </ul>
+          ${curveSvg()}
+        </div>
+        <button class="btn btn-primary land-cta" id="start">Start the test</button>
+      </div>`);
+    document.getElementById("start").onclick = () => { start(); showQuestion(0); };
+  }
+  track("landing_view");
+}
+
+function questionHtml(i) {
+  return `
+    <div class="top"><span>Question ${i + 1} of ${TOTAL}</span>${canBack(i) ? `<button class="link" id="back">Back</button>` : ""}</div>
+    <div class="bar"><div style="width:${(i / TOTAL) * 100}%"></div></div>
+    <p class="q" id="qtext"></p>
+    <div class="opts" role="group" aria-labelledby="qtext">
+      ${ORDER[i].map((t, k) => `<button class="opt${answers[i] === t ? " picked" : ""}" data-k="${k}"></button>`).join("")}
+    </div>`;
+}
+
+function bindQuestion(i) {
+  document.getElementById("qtext").textContent = QUESTIONS[i].q;
+  app.querySelectorAll(".opt").forEach(b => {
+    b.textContent = ORDER[i][b.dataset.k];
+    b.onclick = () => pick(i, ORDER[i][b.dataset.k], b);
+  });
+  const back = document.getElementById("back");
+  if (back) back.onclick = () => { if (!locked) showQuestion(i - 1); };
+  shownAt = performance.now();
+  locked = false;
+}
+
+function showQuestion(i) {
+  render((i === 0 && CONFIG.firstScreen === "question" ? HEAD : "") + questionHtml(i)); // test3: question 1 is the landing, with its title
+  bindQuestion(i);
+  current = i;
+}
+
+function pick(i, text, btn) {
+  if (locked) return;
+  locked = true;
+  btn.classList.add("picked");
+  if (!started) start(); // firstScreen "question": the first answer is the start
+  const first = answers[i] === null; // a changed answer replaces the old one but is not sent again
+  answers[i] = text;
+  if (first) track("question_answered", { question: i + 1, time_ms: Math.round(performance.now() - shownAt) });
+  setTimeout(() => afterAnswer(i + 1), 200);
+}
+
+function afterAnswer(n) {
+  if (n === TOTAL) track("quiz_complete");
+  if (n === CONFIG.gateAfter && !gatePassed) return calculating();
+  if (n === TOTAL) return result();
+  if (n === CONFIG.interstitialAfter && !interstitialShown) return interstitial(n);
+  showQuestion(n);
+}
+
+function interstitial(n) {
+  render(`<div class="center"><p class="big">Only ${TOTAL - n} questions left</p></div>`);
+  interstitialShown = true;
+  track("interstitial_view", { position: n });
+  setTimeout(() => showQuestion(n), CONFIG.interstitialMs);
+}
+
+function calculating() {
+  render(`<div class="center"><div class="spinner" aria-hidden="true"></div><p class="big">Calculating your score</p><p class="sub">Patterns · Numbers · Words · Logic</p></div>`);
+  track("calc_view");
+  setTimeout(gate, CONFIG.calcMs);
+}
+
+function gate() {
+  const early = CONFIG.gateAfter < TOTAL;
+  const correct = countCorrect(0, CONFIG.gateAfter);
+  gateBand = bandOf(iqFromCorrect(early ? Math.round(correct * TOTAL / CONFIG.gateAfter) : correct));
+  const rangeLine = early
+    ? `Based on your first ${CONFIG.gateAfter} answers, your score is between ${gateBand[0]} and ${gateBand[1]}.`
+    : `Your score is between ${gateBand[0]} and ${gateBand[1]}.`;
+  render(`
+    <div class="gate">
+      <h2>${early ? "Create your free account to save your progress" : "Create your free account to see your score"}</h2>
+      ${CONFIG.gateShows === "range" ? `<p class="range">${rangeLine}</p>${curveSvg(gateBand)}` : ""}
+      <p class="sub">Your score is saved, with a breakdown by area.</p>
+      <button class="btn btn-primary btn-google" id="google"><svg class="g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continue with Google</button>
+      <p class="or">or</p>
+      <form id="emailForm" novalidate>
+        <label for="email" class="small" style="display:none">Your email</label>
+        <input type="email" id="email" placeholder="Your email" autocomplete="email" aria-label="Your email">
+        <p class="error" id="err" role="alert" hidden>Please enter a valid email.</p>
+        <button class="btn" type="submit">${early ? "Save and continue" : "See my score"}</button>
+        <p class="small">No password needed.</p>
+        <p class="small">We only use your email to save your result. <a href="privacy.html" target="_blank" rel="noopener">Privacy</a></p>
+      </form>
+    </div>`);
+  track("gate_view", { gate_after: CONFIG.gateAfter, gate_shows: CONFIG.gateShows });
+
+  // Google is a simulation: no backend, so the account counts on click.
+  document.getElementById("google").onclick = () => signup("google");
+  document.getElementById("emailForm").onsubmit = e => {
+    e.preventDefault();
+    track("signup_method_click", { method: "email" });
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(document.getElementById("email").value.trim());
+    document.getElementById("err").hidden = ok;
+    if (ok) created("email"); // the email itself is never stored or sent
+  };
+}
+
+function signup(method) {
+  track("signup_method_click", { method });
+  created(method);
+}
+
+function created(method) {
+  track("account_created", { method });
+  gatePassed = true;
+  if (answers.every(a => a !== null)) result();
+  else showQuestion(CONFIG.gateAfter);
+}
+
+function result() {
+  const correct = countCorrect(0, TOTAL);
+  const iq = iqFromCorrect(correct);
+  const early = CONFIG.gateAfter < TOTAL;
+  const outside = early && (iq < gateBand[0] || iq > gateBand[1]);
+  render(`
+    <div class="center">
+      <h2>Your IQ score</h2>
+      <div class="score">${iq}</div>
+      <p>You answered ${correct} of ${TOTAL} correctly.</p>
+      <ul class="areas">${["Patterns", "Numbers", "Words", "Logic"].map(a => {
+        const qs = QUESTIONS.map((q, i) => i).filter(i => QUESTIONS[i].area === a);
+        return `<li><span>${a}</span><span>${qs.filter(i => answers[i] === QUESTIONS[i].a).length} of ${qs.length}</span></li>`;
+      }).join("")}</ul>
+      <p>That is higher than ${percentile(iq)}% of scores on the standard IQ scale.</p>
+      ${outside && CONFIG.gateShows === "range" ? `<p class="outside">Your estimate after ${CONFIG.gateAfter} answers was ${gateBand[0]} to ${gateBand[1]}. With all ${TOTAL} answers, your score is ${iq}.</p>` : ""}
+      <p class="note">This is a short online test, not a clinical IQ assessment.</p>
+    </div>`);
+  track("result_view", early ? { outside_range: outside } : {});
+}
+
+landing();
+</script>
+</body>
+</html>
