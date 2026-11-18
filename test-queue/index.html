@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>IQly Test Queue</title>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{--bg:#f6f7fb;--card:#fff;--ink:#14161b;--mute:#4b5563;--line:#e5e7eb;--blue:#2f5bea;--blue-soft:#e8eefe;--ship:#1e8e3e;--ship-soft:#e6f4ea;--keep:#5f6368;--rej:#d93025;--rej-soft:#fce8e6;--srm:#b45309}
@@ -109,6 +109,52 @@ header.top .in{max-width:1240px;margin:0 auto;padding:0 16px;height:64px;display
 .foot{color:var(--mute);font-size:16px;max-width:860px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 .ba{display:flex;gap:12px;flex-wrap:wrap}.ba figure{margin:0;text-align:center}.ba img{width:170px;max-width:40vw;border:1px solid var(--line,#e5e7eb);border-radius:10px;display:block}.ba figcaption{font-size:13px;color:#6b7280;margin-top:4px}
+/* v2: product-grade skin, overrides only */
+:root{--bg:#f7f7f8;--card:#fff;--ink:#0f1115;--mute:#5f6672;--line:#e3e5e8;--blue:#2450d8;--blue-soft:#eef2fd;--ship:#13804a;--ship-soft:#eaf6ef;--keep:#5f6672;--rej:#c4321f;--rej-soft:#fbecea;--srm:#a15c07}
+body{font:16px/1.6 Inter,Assistant,system-ui,sans-serif;letter-spacing:0;-webkit-font-smoothing:antialiased}
+b,strong{font-weight:600}
+.wrap{padding:32px 24px 64px}
+h1{font-size:24px;font-weight:600;letter-spacing:-.015em}
+.lead{font-size:15px;margin-bottom:28px}
+h2{font-size:15px;font-weight:600;margin-bottom:14px;letter-spacing:0}
+.sub{font-size:14px}
+.card{border-radius:8px;padding:20px;box-shadow:none}
+header.top{background:#0f1115;border-bottom:0}
+header.top .in{height:56px}
+.prod{font:600 14px Inter,Assistant,sans-serif;border-color:#2a2e36}.prod span{font-family:inherit;color:#8b919c}
+.nav a{font-size:14px;font-weight:500;color:#a3a9b3;padding:0 14px}.nav a[aria-current=page]{border-bottom-color:#fff}
+button{font-weight:500;font-size:14px;border-radius:6px;padding:7px 14px;min-height:36px;border-color:#d4d7dc}
+button:hover:not(:disabled){background:#f2f3f5}
+button.primary{background:var(--ink);border-color:var(--ink)}button.primary:hover:not(:disabled){background:#2a2e36}
+button:disabled{opacity:.5}
+.day{font-size:14px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--mute);background:#fff;border:1px solid var(--line);border-radius:6px;padding:6px 12px;direction:rtl}
+.now{background:#fff;border:1px solid var(--line);border-inline-start:3px solid var(--blue);border-radius:6px;padding:12px 16px;font-size:15px}
+.now b{color:var(--ink)}
+.kpis{gap:0;background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:16px}
+.kpi{border:0;border-radius:0;border-inline-start:1px solid var(--line);padding:16px 20px}.kpi:first-child{border-inline-start:0}
+@media(max-width:900px){.kpi:nth-child(odd){border-inline-start:0}.kpi:nth-child(n+3){border-top:1px solid var(--line)}}
+.kpi .l{font-size:13px;font-weight:500}
+.kpi .v{font:500 28px/1.2 Inter,Assistant,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin:6px 0 2px}
+.kpi .s{font-size:13px}
+.test{border-radius:6px;padding:14px}.test.run{box-shadow:none;border-color:var(--blue)}
+.test .name{font-size:15px;font-weight:600}
+.badge{font-size:12px;font-weight:500;border-radius:4px;padding:2px 8px}
+.ab div{font-size:14px;border-radius:4px}
+.why,.stats,.log,.layer,table,.spec{font-size:14px}
+.stats b,.spec dd{font-weight:500;font-variant-numeric:tabular-nums}
+.bar{height:4px}
+.log div{border-bottom-style:solid}
+.chip{font-size:12px;font-weight:500;border-radius:4px}
+.tag{font-size:12px;font-weight:600;border-radius:4px;font-family:Inter,Assistant,sans-serif;font-variant-numeric:tabular-nums}
+.edb{font-size:13px;font-weight:500;border-radius:6px;min-height:30px}
+.btn-p,.eb .btn-p{background:var(--ink)}
+.eb button{font-size:14px;font-weight:500;border-radius:6px;min-height:36px}
+.ef label,.params label{font-size:13px;font-weight:500;color:var(--mute)}
+.ef input,.ef textarea,.msel,.params select{font-size:14px;border-radius:6px;min-height:36px;border-color:#d4d7dc}
+.ba img{border-radius:6px}
+.chartbox{height:340px}
+dialog#fdlg{border-radius:10px;border:1px solid var(--line)}
+.day{margin-inline-start:0}
 </style></head><body>
 <header class="top"><div class="in"><a class="brand" href="#dash" aria-label="Arpeely, דשבורד"><img src="arpeely-logo.png" alt="Arpeely" width="123" height="33"></a><span class="prod">IQly <span>תור בדיקות</span></span>
 <nav class="nav" aria-label="עמודים"><a href="#dash">דשבורד</a><a href="#backlog">בקלוג</a><a href="#settings">הגדרות</a></nav></div></header>
@@ -120,7 +166,7 @@ header.top .in{max-width:1240px;margin:0 auto;padding:0 16px;height:64px;display
 
 <div class="page" id="p-dash">
 <div class="controls">
- <button class="primary" id="play">▶ הרצת התור</button><button id="reset">מההתחלה</button>
+ <button class="primary" id="play">הרצת התור</button><button id="reset">מההתחלה</button>
  <button id="fopen">מה השתנה בין הגרסאות</button>
  <span class="day" id="dayl" aria-live="polite">יום 0</span>
 </div>
@@ -165,6 +211,7 @@ header.top .in{max-width:1240px;margin:0 auto;padding:0 16px;height:64px;display
 </div>
 </div>
 <script>
+Chart.defaults.font.family="Inter,Assistant,sans-serif";Chart.defaults.font.size=12;Chart.defaults.color="#5f6672";
 const REC=[[1, 1, 748, 138, 752, 174, 134, 138, 172, 174], [1, 2, 740, 135, 760, 175, 133, 135, 169, 175], [1, 3, 748, 143, 752, 183, 139, 143, 180, 183], [1, 4, 738, 170, 762, 180, 165, 170, 173, 180], [1, 5, 775, 168, 725, 159, 165, 168, 157, 159], [1, 6, 750, 129, 750, 168, 124, 129, 164, 168], [1, 7, 782, 129, 718, 173, 126, 129, 164, 173], [1, 8, 764, 155, 736, 172, 152, 155, 168, 172], [1, 9, 715, 137, 785, 185, 134, 137, 182, 185], [2, 10, 725, 175, 775, 174, 8, 175, 10, 174], [2, 11, 770, 162, 730, 185, 7, 162, 9, 185], [2, 12, 756, 178, 744, 183, 5, 178, 10, 183], [2, 13, 749, 192, 751, 179, 8, 192, 8, 179], [2, 14, 723, 152, 777, 195, 12, 152, 9, 195], [2, 15, 732, 185, 768, 172, 10, 185, 8, 172], [2, 16, 760, 181, 740, 169, 11, 181, 8, 169], [2, 17, 760, 185, 740, 173, 9, 185, 7, 173], [3, 18, 769, 181, 731, 194, 289, 446, 275, 538], [3, 19, 759, 172, 741, 188, 270, 447, 300, 552], [3, 20, 747, 184, 753, 192, 268, 442, 313, 585], [3, 21, 713, 167, 787, 233, 253, 415, 291, 578], [3, 22, 756, 183, 744, 199, 276, 441, 283, 552], [3, 23, 769, 173, 731, 187, 267, 463, 286, 556], [3, 24, 757, 171, 743, 207, 269, 452, 281, 552], [3, 25, 751, 169, 749, 176, 287, 448, 286, 541]];
 let A=0.05,MDE=0.10,DAILY=1500,Z_A2=1.959964,Z_PW=0.841621,Z_A1=1.644854;const SRM_P=0.001;
 const ZA2={.01:2.575829,.05:1.959964,.1:1.644854},ZA1={.01:2.326348,.05:1.644854,.1:1.281552},ZPW={.8:.841621,.9:1.281552};
@@ -287,7 +334,7 @@ function render(){document.getElementById("dayl").textContent="יום "+S.day;re
   (T.n?'<div class="stats"><span>'+unitOf(t.kpi)+' בכל גרסה</span><b>'+(has?fmt(Math.min(T.nA,T.nB))+' / ':'')+fmt(T.n)+'</b></div><div class="bar"><i style="width:'+(prog*100)+'%"></i></div>':'')+
   (has?'<div class="stats"><span>A</span><b>'+pct(T.cc)+'</b><span>B</span><b>'+pct(T.cv)+'</b><span>p</span><b>'+(T.p<1e-4?'<0.0001':T.p.toFixed(3))+'</b>'+(T.gc==null?'':'<span>מדד הגנה</span><b class="'+(T.gHeld?'ok':'bad')+'">'+pct(T.gc)+' → '+pct(T.gv)+'</b>')+'</div>':'')+(run&&has?'<button class="kill" onclick="kill()">עצירת בדיקה</button>':'')+'</div>'}).join("");
  renderBacklog();lockSettings();
- const P=document.getElementById("play");P.textContent=timer?"❚❚ עצירה":S.done?"✓ הסתיים":"▶ הרצת התור";P.disabled=S.done}
+ const P=document.getElementById("play");P.textContent=timer?"עצירה":S.done?"הרצה מחדש":"הרצת התור"}
 const sel=(k,f,list,cur)=>'<select class="msel" data-k="'+k+'" data-f="'+f+'" aria-label="'+(f==="kpi"?"המדד שקובע":"מדד ההגנה")+' בבדיקה '+(k+1)+'">'+list.map(m=>'<option value="'+m+'"'+(m===cur?' selected':'')+'>'+(m==="none"?"בלי מדד הגנה":MET[m].he)+'</option>').join("")+'</select>';
 const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
 let edK=null;
@@ -326,19 +373,19 @@ function renderParams(){document.getElementById("params").innerHTML=PAR.map(p=>'
  document.querySelectorAll("#params select").forEach(el=>el.onchange=()=>{PV[el.dataset.p]=+el.value;applyParams();renderParams();reset()})}
 function lockSettings(){const L=S.day>0;document.querySelectorAll("#params select,#backlog select").forEach(el=>el.disabled=L);document.getElementById("plock").hidden=!L}
 function stop(){clearInterval(timer);timer=null;if(S)render()}
-function play(){if(timer)return stop();timer=setInterval(step,speed);render()}
+function play(){if(timer)return stop();if(S.done)reset();timer=setInterval(step,speed);render()}
 const bands={id:"bands",beforeDraw(c){const{ctx,chartArea:a,scales:{x}}=c;if(!S)return;const cw=x.width/Math.max(1,c.data.labels.length);S.tests.forEach((T,k)=>{if(!T.start)return;const end=T.end||S.day;if(end<T.start)return;
  const x0=Math.max(a.left,x.getPixelForValue(T.start-1)-cw/2),x1=Math.min(a.right,x.getPixelForValue(end-1)+cw/2),col=T.dec?COL[T.dec]:"#2f5bea";
- ctx.save();ctx.fillStyle=col+"12";ctx.fillRect(x0,a.top,x1-x0,a.height);ctx.fillStyle=col;ctx.font="700 14px Heebo,sans-serif";ctx.textAlign="center";ctx.direction="rtl";
+ ctx.save();ctx.fillStyle=col+"12";ctx.fillRect(x0,a.top,x1-x0,a.height);ctx.fillStyle=col;ctx.font="600 12px Inter,Assistant,sans-serif";ctx.textAlign="center";ctx.direction="rtl";
  const cx=(x0+x1)/2,w=x1-x0-6;let l1="בדיקה "+(k+1),l2=T.dec?DEC_SHORT[T.dec]:"רצה";if(ctx.measureText(l1).width>w)l1=String(k+1);if(ctx.measureText(l2).width>w)l2="";ctx.fillText(l1,cx,a.top+17);ctx.fillText(l2,cx,a.top+35);ctx.restore()})}};
-Chart.defaults.font.family="Heebo,Inter,system-ui,sans-serif";Chart.defaults.font.size=14;Chart.defaults.color="#374151";
+Chart.defaults.font.family="Inter,Assistant,sans-serif";Chart.defaults.font.size=12;Chart.defaults.color="#5f6672";
 const gap=c=>S&&S.tests.some(T=>T.end&&c.p0DataIndex===T.end-1);
 chart=new Chart(document.getElementById("ch"),{type:"line",data:{labels:[],datasets:[
  {label:"A: הגרסה החיה",borderColor:"#8a8f98",backgroundColor:"#8a8f98",data:[],pointRadius:3,borderWidth:3,tension:.2,segment:{borderColor:c=>gap(c)?"transparent":undefined}},
- {label:"B: הגרסה החדשה",borderColor:"#2f5bea",backgroundColor:"#2f5bea",data:[],pointRadius:3,borderWidth:3,tension:.2,segment:{borderColor:c=>gap(c)?"transparent":undefined}},
- {label:"הבסיס שתוכנן",borderColor:"#14161b",borderDash:[5,4],data:[],pointRadius:0,borderWidth:1.5,stepped:true,segment:{borderColor:c=>gap(c)?"transparent":undefined}}]},
+ {label:"B: הגרסה החדשה",borderColor:"#2450d8",backgroundColor:"#2450d8",data:[],pointRadius:3,borderWidth:3,tension:.2,segment:{borderColor:c=>gap(c)?"transparent":undefined}},
+ {label:"הבסיס שתוכנן",borderColor:"#0f1115",borderDash:[5,4],data:[],pointRadius:0,borderWidth:1.5,stepped:true,segment:{borderColor:c=>gap(c)?"transparent":undefined}}]},
  plugins:[bands],options:{maintainAspectRatio:false,animation:false,interaction:{mode:"index",intersect:false},
- scales:{y:{ticks:{callback:v=>v+"%"}},x:{title:{display:true,text:"יום"},grid:{display:false}}},
+ scales:{y:{min:15,max:30,ticks:{callback:v=>v+"%"}},x:{title:{display:true,text:"יום"},grid:{display:false}}},
  plugins:{legend:{position:"bottom",rtl:true,labels:{boxWidth:16,padding:16}},tooltip:{rtl:true,callbacks:{label:c=>c.dataset.label+": "+c.parsed.y.toFixed(1)+"%"}}}}});
 const seg=(id,fn)=>document.querySelectorAll("#"+id+" button").forEach(b=>{b.setAttribute("aria-pressed",b.classList.contains("on"));b.onclick=()=>{document.querySelectorAll("#"+id+" button").forEach(x=>{x.classList.toggle("on",x===b);x.setAttribute("aria-pressed",x===b)});fn(b)}});
 document.getElementById("play").onclick=play;document.getElementById("reset").onclick=reset;
@@ -346,7 +393,7 @@ function route(){const h=["dash","backlog","settings"].includes(location.hash.sl
  ["dash","backlog","settings"].forEach(x=>document.getElementById("p-"+x).hidden=x!==h);
  document.querySelectorAll(".nav a").forEach(a=>a.getAttribute("href")==="#"+h?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));if(h==="dash")chart.resize()}
 addEventListener("hashchange",route);
-renderParams();reset();route();
+renderParams();reset();while(!S.done)step();render();route();
 </script><script>{const d=document.getElementById("fdlg"),open=k=>{fk=k;renderFunnel();d.showModal()};d.addEventListener("close",()=>{fk=null;renderFunnel()});
 document.getElementById("queue").addEventListener("click",e=>{const c=e.target.closest("[data-fk]");if(c&&!e.target.closest("button"))open(+c.dataset.fk)});
 document.getElementById("queue").addEventListener("keydown",e=>{const c=e.target.closest("[data-fk]");if(c&&(e.key==="Enter"||e.key===" ")&&e.target===c){e.preventDefault();open(+c.dataset.fk)}});
