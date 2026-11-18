@@ -188,9 +188,9 @@ const MET={cvr:{he:"נרשמים מתוך מבקרים בדף",ev:"account_creat
 const KPI_OPTS=["cvr","start","comp","gate"],GRD_OPTS=["res","bounce","comp","start","none"];
 const V1={s:.60,g:.62,a:.5376,r:.97,c:.62,b:.05},G10={s:.60,g:.80,a:.479,r:.965,c:.60,b:.05};
 const TESTS=[
- {key:"gate10",name:"שער אחרי שאלה 10",A:"השער מופיע אחרי שאלה 20",B:"השער מוקדם לאחרי שאלה 10, עם הכותרת Save your progress",hyp:"מי שנוטש לפני שאלה 20 לא מגיע לשער בכלל. שער מוקדם יותר יתפוס חלק מהם.",kpi0:"cvr",grd0:"res",rA:V1,rB:G10,aff:["quiz","gate","quiz2"]},
- {key:"noRange",name:"שער בלי טווח ציון",A:"השער מראה טווח ציון, למשל בין 110 ל-119",B:"אותו שער, בלי הטווח",hyp:"מי שלא יודע כלום על הציון סקרן יותר, ולכן יותר אנשים יירשמו.",kpi0:"cvr",grd0:"bounce",rA:G10,rB:G10,aff:["gate"]},
- {key:"q1",name:"שאלה 1 בדף הנחיתה",A:"דף נחיתה עם כרטיס הסבר וכפתור התחלה",B:"שאלה 1 מופיעה ישר מתחת לכותרת",hyp:"שאלה אמיתית על המסך גורמת לאנשים להתחיל לענות, במקום לשקול אם ללחוץ.",kpi0:"cvr",grd0:"comp",rA:G10,rB:{s:.75,g:.80,a:.4333,r:.965,c:.52,b:.05},aff:["landing","quiz"]}];
+ {key:"gate10",git:"1-gate-after-q10",name:"שער אחרי שאלה 10",A:"השער מופיע אחרי שאלה 20",B:"השער מוקדם לאחרי שאלה 10, עם הכותרת Save your progress",hyp:"מי שנוטש לפני שאלה 20 לא מגיע לשער בכלל. שער מוקדם יותר יתפוס חלק מהם.",kpi0:"cvr",grd0:"res",rA:V1,rB:G10,aff:["quiz","gate","quiz2"]},
+ {key:"noRange",git:"2-gate-no-range",name:"שער בלי טווח ציון",A:"השער מראה טווח ציון, למשל בין 110 ל-119",B:"אותו שער, בלי הטווח",hyp:"מי שלא יודע כלום על הציון סקרן יותר, ולכן יותר אנשים יירשמו.",kpi0:"cvr",grd0:"bounce",rA:G10,rB:G10,aff:["gate"]},
+ {key:"q1",git:"3-question-on-landing",name:"שאלה 1 בדף הנחיתה",A:"דף נחיתה עם כרטיס הסבר וכפתור התחלה",B:"שאלה 1 מופיעה ישר מתחת לכותרת",hyp:"שאלה אמיתית על המסך גורמת לאנשים להתחיל לענות, במקום לשקול אם ללחוץ.",kpi0:"cvr",grd0:"comp",rA:G10,rB:{s:.75,g:.80,a:.4333,r:.965,c:.52,b:.05},aff:["landing","quiz"]}];
 TESTS.forEach(t=>{t.kpi=t.kpi0;t.grd=t.grd0});
 const trueRate=(r,k)=>({cvr:r.s*r.g*r.a,start:r.s,comp:r.c,gate:r.a})[k];
 const EV=["land","start","gate","acc","res","comp","bounce"];
@@ -292,7 +292,7 @@ function renderBacklog(){document.getElementById("backlog").innerHTML=TESTS.map(
   row("מטרה","עלייה של לפחות "+ltr(pct(MDE,0))+" במדד: "+MET[t.kpi].he+", ביחס לבסיס.")+
   row("השערה",t.hyp)+
   row("מדד הגנה",t.grd==="none"?"בלי":MET[t.grd].he)+
-  row("קוד",'<span class="muted">לא מקושר</span>')+
+  row("קוד",'<a href="https://github.com/Benlenderman/iqly/compare/main...exp/'+t.git+'" target="_blank" rel="noopener" dir="ltr">exp/'+t.git+'</a> <span class="muted">(ריפו פרטי)</span>')+
   row("מדגם ומשך זמן",T.n?fmt(T.n)+" "+unitOf(t.kpi)+" לגרסה, בערך "+Math.ceil(T.n/(DAILY/2*share))+" ימים":"מחושב כשהבדיקה מתחילה")+
   (T.start&&(T.nA||T.end)?row("ימים",T.end?"יום "+T.start+" עד יום "+T.end:"מיום "+T.start+", רצה"):"")+
   (T.dec&&T.nA?row("תוצאה",ltr("A "+pct(T.cc))+" מול "+ltr("B "+pct(T.cv))+", "+ltr(T.p<1e-4?"p < 0.0001":"p = "+T.p.toFixed(4))+(T.gc==null?"":". מדד הגנה "+ltr(pct(T.gc)+" → "+pct(T.gv)))):"")+
