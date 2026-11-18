@@ -82,7 +82,7 @@ button.primary{background:var(--blue);color:#fff;border-color:var(--blue)}button
 .layer b{color:var(--ink)}.layer.off b{color:#9ca3af;text-decoration:line-through}
 .log{font-size:16px;line-height:1.6;max-height:340px;overflow:auto}
 .log div{padding:8px 0;border-bottom:1px dashed var(--line)}.log .ev{font-weight:700}
-.msel{font:inherit;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:44px;max-width:100%}.exp .ev{display:block;margin-top:4px}
+.msel{font:inherit;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:44px;max-width:100%}
 table{width:100%;border-collapse:collapse;font-size:16px}th,td{text-align:right;padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:15px;color:var(--mute);font-weight:700}
 td:first-child{font-weight:700;white-space:nowrap}code{font:14px Inter,monospace;background:#f3f4f6;padding:1px 5px;border-radius:4px;direction:ltr;display:inline-block}
 .tablewrap{overflow-x:auto}
@@ -95,8 +95,14 @@ header.top .in{max-width:1240px;margin:0 auto;padding:0 16px;height:64px;display
 .nav a{display:flex;align-items:center;padding:0 16px;font-weight:600;font-size:16px;color:#cbd5e1;text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap}
 .nav a:hover{color:#fff}.nav a[aria-current=page]{color:#fff;border-bottom-color:#60a5fa}
 @media(max-width:640px){.prod{display:none}.brand img{height:20px}header.top .in{gap:8px}.nav a{padding:0 10px;font-size:15px}}
-.exp dl{display:grid;grid-template-columns:130px 1fr;gap:8px 16px;margin:12px 0 0}.exp dt{color:var(--mute);font-weight:700}.exp dd{margin:0}.exp a{color:var(--blue)}.muted{color:#9ca3af}
-@media(max-width:600px){.exp dl{grid-template-columns:1fr;gap:2px}.exp dd{margin-bottom:10px}}
+.exp .tr{display:flex;gap:8px;align-items:center}.exp .hyp{color:var(--mute);margin:6px 0 0;font-size:15px}.exp a{color:var(--blue)}.muted{color:#9ca3af}
+.exp .body{display:grid;grid-template-columns:auto 1fr;gap:24px;margin-top:14px;align-items:start}.exp .ba img{width:120px}
+.spec{display:grid;grid-template-columns:64px 1fr;gap:10px 14px;margin:0;font-size:16px}.spec dt{color:var(--mute);font-weight:600}.spec dd{margin:0;font-variant-numeric:tabular-nums;font-weight:600}
+.spec .u{display:block;color:#9ca3af;font-weight:400;font-size:13px}.spec small{display:block;color:#9ca3af;font:400 13px Inter,monospace;direction:ltr;text-align:right;margin-top:2px}
+.edb{font:inherit;font-size:14px;font-weight:600;color:var(--blue);background:none;border:1px solid var(--line);border-radius:8px;padding:4px 12px;min-height:32px;cursor:pointer}.edb:hover{border-color:var(--blue)}
+.ef{display:grid;gap:12px}.ef label{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:15px}.ef input,.ef textarea{font:inherit;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;min-height:44px}
+.ef .hint{margin:0;color:var(--mute);font-size:14px}.eb{display:flex;gap:8px}.eb button{font:inherit;font-weight:700;font-size:15px;border-radius:8px;padding:8px 18px;min-height:44px;cursor:pointer}.btn-p{background:var(--blue);color:#fff;border:0}.btn-g{background:#fff;color:var(--ink);border:1px solid var(--line)}
+@media(max-width:600px){.exp .body{grid-template-columns:1fr}}
 .params{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.params label{display:flex;flex-direction:column;gap:6px;font-weight:700}.params select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:44px}
 .lock{color:var(--srm);font-size:15px;margin:10px 0 0}
 .kill{font-size:15px;min-height:40px;padding:6px 12px;margin-top:6px;color:var(--rej)}
@@ -143,7 +149,7 @@ header.top .in{max-width:1240px;margin:0 auto;padding:0 16px;height:64px;display
 <div class="page" id="p-backlog" hidden>
 <section class="card">
  <h2>בקלוג ניסויים</h2>
- <p class="sub">בכל ניסוי: מה השתנה, המטרה, התזה ואיפה הקוד. אחרי ההכרעה נכנסות התוצאה ומה למדנו.</p>
+ <p class="sub">שלוש בדיקות לפי סדר הריצה. עריכה פותחת שם, שינוי, השערה ומדדים.</p>
  <div id="backlog"></div>
 </section>
 </div>
@@ -285,21 +291,38 @@ function render(){document.getElementById("dayl").textContent="יום "+S.day;re
  renderBacklog();lockSettings();
  const P=document.getElementById("play");P.textContent=timer?"❚❚ עצירה":S.done?"✓ הסתיים":"▶ הרצת התור";P.disabled=S.done}
 const sel=(k,f,list,cur)=>'<select class="msel" data-k="'+k+'" data-f="'+f+'" aria-label="'+(f==="kpi"?"המדד שקובע":"מדד ההגנה")+' בבדיקה '+(k+1)+'">'+list.map(m=>'<option value="'+m+'"'+(m===cur?' selected':'')+'>'+(m==="none"?"בלי מדד הגנה":MET[m].he)+'</option>').join("")+'</select>';
-function renderBacklog(){document.getElementById("backlog").innerHTML=TESTS.map((t,k)=>{const T=S.tests[k],run=k===S.i&&!S.done;
- const b=T.dec?'<span class="badge b-'+T.dec+'">'+DEC[T.dec]+'</span>':run?'<span class="badge b-run">רצה עכשיו</span>':'<span class="badge">ממתינה</span>';
- const row=(h,v)=>'<dt>'+h+'</dt><dd>'+v+'</dd>';
- return '<div class="test exp"><div class="top"><span class="name">'+(k+1)+'. '+t.name+'</span>'+b+'</div><dl>'+
-  row("השינוי",t.B+'<br><span class="muted">לפני: '+t.A+'</span>')+
-  row("מסכים",'<div class="ba"><figure><img src="shots/'+(k+1)+'A.png" alt="לפני: '+t.A+'" loading="lazy"><figcaption>לפני</figcaption></figure><figure><img src="shots/'+(k+1)+'B.png" alt="אחרי: '+t.B+'" loading="lazy"><figcaption>אחרי</figcaption></figure></div>')+
-  row("המדד שקובע",sel(k,"kpi",KPI_OPTS,t.kpi)+'<code class="ev">'+MET[t.kpi].ev+'</code>')+
-  row("מטרה","עלייה של לפחות "+ltr(pct(MDE,0))+" במדד הזה, ביחס לבסיס.")+
-  row("השערה",t.hyp)+
-  row("מדד הגנה",sel(k,"grd",GRD_OPTS,t.grd)+(t.grd==="none"?"":'<code class="ev">'+MET[t.grd].ev+'</code>'))+
-  row("קוד",'<a href="https://github.com/Benlenderman/iqly/compare/main...exp/'+t.git+'" target="_blank" rel="noopener" dir="ltr">exp/'+t.git+'</a>')+
-  row("מדגם",T.n?fmt(T.n)+" "+unitOf(t.kpi)+" לגרסה, "+fmt(2*T.n)+" בסך הכל":"מחושב כשהבדיקה מתחילה")+
-  (T.start&&(T.nA||T.end)?row("ימים",T.end?"יום "+T.start+" עד יום "+T.end:"מיום "+T.start+", רצה"):"")+
-  (T.dec&&T.nA?row("תוצאה",ltr("A "+pct(T.cc))+" מול "+ltr("B "+pct(T.cv))+", "+ltr(T.p<1e-4?"p < 0.0001":"p = "+T.p.toFixed(4))+(T.gc==null?"":". מדד הגנה "+ltr(pct(T.gc)+" → "+pct(T.gv)))):"")+
-  (T.dec?row("תובנה",INS[T.dec]):"")+'</dl></div>'}).join("")
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+let edK=null;
+TESTS.forEach(t=>t.o={name:t.name,B:t.B,hyp:t.hyp});
+function renderBacklog(){document.getElementById("backlog").innerHTML=TESTS.map((t,k)=>{const T=S.tests[k],run=k===S.i&&!S.done,ed=edK===k;
+ const b=T.dec?'<span class="badge b-'+T.dec+'">'+DEC_SHORT[T.dec]+'</span>':run?'<span class="badge b-run">רצה</span>':'<span class="badge">ממתינה</span>';
+ const row=(h,v)=>'<dt>'+h+'</dt><dd>'+v+'</dd>',ev=m=>m==="none"?"":'<small>'+MET[m].ev+'</small>';
+ const n=T.n?ltr(fmt(T.n)+" × 2")+'<span class="u">'+unitOf(t.kpi)+' לגרסה</span>':'<span class="muted">בתחילת הבדיקה</span>';
+ const res=T.dec&&T.nA?ltr("A "+pct(T.cc)+" · B "+pct(T.cv)+" · "+((T.cv>=T.cc?"+":"")+pct(T.cv/T.cc-1))+" · "+(T.p<1e-4?"p<0.0001":"p="+T.p.toFixed(4))):"";
+ const spec=ed?'<div class="ef">'+
+   '<label>שם<input data-k="'+k+'" data-t="name" value="'+esc(t.name)+'"></label>'+
+   '<label>השינוי<input data-k="'+k+'" data-t="B" value="'+esc(t.B)+'"></label>'+
+   '<label>השערה<textarea rows="2" data-k="'+k+'" data-t="hyp">'+esc(t.hyp)+'</textarea></label>'+
+   '<label>מדד ראשי'+sel(k,"kpi",KPI_OPTS,t.kpi)+'</label>'+
+   '<label>מדד הגנה'+sel(k,"grd",GRD_OPTS,t.grd)+'</label>'+
+   '<p class="hint">'+(S.day>0?"המדדים נעולים כשהתור רץ. איפוס פותח אותם.":"החלפת מדד מחשבת מחדש את המדגם ומאפסת את התור.")+'</p>'+
+   '<div class="eb"><button class="btn-p" data-done>סיום</button><button class="btn-g" data-def="'+k+'">ברירת מחדל</button></div></div>'
+  :'<dl class="spec">'+
+   row("מדד",MET[t.kpi].he+ev(t.kpi))+
+   row("יעד",ltr("+"+pct(MDE,0)))+
+   row("מדגם",n)+
+   row("הגנה",t.grd==="none"?"—":MET[t.grd].he+ev(t.grd))+
+   (T.start&&(T.nA||T.end)?row("ימים",ltr(T.end?T.start+"–"+T.end:T.start+"–")):"")+
+   (res?row("תוצאה",res):"")+
+   row("קוד",'<a href="https://github.com/Benlenderman/iqly/compare/main...exp/'+t.git+'" target="_blank" rel="noopener" dir="ltr">exp/'+t.git+'</a>')+'</dl>';
+ return '<div class="test exp"><div class="top"><span class="name">'+(k+1)+'. '+esc(t.name)+'</span><span class="tr">'+b+(ed?'':'<button class="edb" data-ed="'+k+'" aria-label="עריכת בדיקה '+(k+1)+'">עריכה</button>')+'</span></div>'+
+  '<p class="hyp">'+esc(t.hyp)+'</p><div class="body">'+
+  '<div class="ba"><figure><img src="shots/'+(k+1)+'A.png" alt="לפני: '+esc(t.A)+'" loading="lazy"><figcaption>A</figcaption></figure><figure><img src="shots/'+(k+1)+'B.png" alt="אחרי: '+esc(t.B)+'" loading="lazy"><figcaption>B</figcaption></figure></div>'+spec+'</div></div>'}).join("");
+ const BL=document.getElementById("backlog");
+ BL.querySelectorAll("[data-ed]").forEach(x=>x.onclick=()=>{edK=+x.dataset.ed;renderBacklog();BL.querySelector(".ef input").focus()});
+ BL.querySelectorAll("[data-done]").forEach(x=>x.onclick=()=>{edK=null;render()});
+ BL.querySelectorAll("[data-def]").forEach(x=>x.onclick=()=>{const t=TESTS[+x.dataset.def];Object.assign(t,t.o);const m=t.kpi!==t.kpi0||t.grd!==t.grd0;t.kpi=t.kpi0;t.grd=t.grd0;if(m&&S.day===0)reset();else render()});
+ BL.querySelectorAll("[data-t]").forEach(x=>x.oninput=()=>{TESTS[+x.dataset.k][x.dataset.t]=x.value.trim()||TESTS[+x.dataset.k].o[x.dataset.t]});
  document.querySelectorAll("#backlog select").forEach(el=>{el.disabled=S.day>0;el.onchange=()=>{TESTS[+el.dataset.k][el.dataset.f]=el.value;forceRand();reset()}})}
 function renderParams(){document.getElementById("params").innerHTML=PAR.map(p=>'<label>'+p.he+'<select data-p="'+p.id+'">'+p.o.map(([v,l])=>'<option value="'+v+'"'+(v===PV[p.id]?' selected':'')+'>'+l+'</option>').join("")+'</select></label>').join("");
  document.querySelectorAll("#params select").forEach(el=>el.onchange=()=>{PV[el.dataset.p]=+el.value;applyParams();renderParams();forceRand();reset()})}
