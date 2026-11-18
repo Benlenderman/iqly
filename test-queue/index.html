@@ -76,7 +76,7 @@ button.primary{background:var(--blue);color:#fff;border-color:var(--blue)}button
 .layer b{color:var(--ink)}.layer.off b{color:#9ca3af;text-decoration:line-through}
 .log{font-size:16px;line-height:1.6;max-height:340px;overflow:auto}
 .log div{padding:8px 0;border-bottom:1px dashed var(--line)}.log .ev{font-weight:700}
-.kpi select{font:inherit;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:44px;max-width:100%}.kpi td{vertical-align:middle}.kpi .ev{display:block;margin-top:4px}
+.msel{font:inherit;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:44px;max-width:100%}.exp .ev{display:block;margin-top:4px}
 table{width:100%;border-collapse:collapse;font-size:16px}th,td{text-align:right;padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:15px;color:var(--mute);font-weight:700}
 td:first-child{font-weight:700;white-space:nowrap}code{font:14px Inter,monospace;background:#f3f4f6;padding:1px 5px;border-radius:4px;direction:ltr;display:inline-block}
 .tablewrap{overflow-x:auto}
@@ -132,39 +132,10 @@ td:first-child{font-weight:700;white-space:nowrap}code{font:14px Inter,monospace
 <div class="page" id="p-settings" hidden>
 <section class="card">
  <h2>הגדרות סטטיסטיות</h2>
- <p class="sub">חלות על כל הבדיקות וננעלות כשהתור מתחיל, כדי שאף אחד לא ישנה את הכללים באמצע.</p>
+ <p class="sub">חלות על כל הבדיקות. המדדים נקבעים לכל ניסוי בבקלוג. הכול ננעל כשהתור מתחיל, כדי שאף אחד לא ישנה את הכללים באמצע.</p>
  <div class="params" id="params"></div>
  <p class="sub" style="margin:14px 0 0">חלוקת תנועה 50/50, קבועה. חלוקה נחשבת שבורה ב-<span dir="ltr">p &lt; 0.001</span>.</p>
  <p class="lock" id="plock" hidden>נעול: התור כבר רץ. כדי לשנות, מתחילים מההתחלה.</p>
-</section>
-<section class="card">
- <h2>חלונית המדדים</h2>
- <p class="sub">לכל בדיקה בוחרים לפי מה מחליטים ומה אסור לשבור. המדגם מתעדכן לבד.</p>
- <div class="tablewrap"><table class="kpi"><thead><tr><th>בדיקה</th><th>המדד שקובע</th><th>מדד הגנה</th><th>מדגם לכל גרסה</th></tr></thead><tbody id="kpi"></tbody></table></div>
-</section>
-
-<section class="card">
- <h2>ההצעה: איך בוחנים כל שלב במשפך</h2>
- <p class="sub">לכל שלב: מה משנים, לפי מה מודדים ומה אסור שייפגע.</p>
- <div class="tablewrap"><table>
-  <tr><th>שלב</th><th>מה בודקים</th><th>מדד השלב</th><th>מדד הגנה</th></tr>
-  <tr><td>מודעה</td><td>כותרת, תמונה, הבטחה</td><td>הקלקות חלקי חשיפות</td><td>שיעור ההרשמה של המקליקים לא נפגע</td></tr>
-  <tr><td>דף נחיתה</td><td>כותרת, מה רואים מעל הקפל, הכפתור</td><td><code>quiz_start / landing_view</code></td><td><code>quiz_complete / quiz_start</code></td></tr>
-  <tr><td>שאלון</td><td>אורך, סדר השאלות, מונה ההתקדמות</td><td><code>quiz_complete / quiz_start</code></td><td>הציון הממוצע לא משתנה</td></tr>
-  <tr><td>שער הרשמה</td><td>איפה הוא עומד, מה מראים בו, איך נרשמים</td><td><code>account_created / gate_view</code></td><td>מיילים חוזרים, <code>result_view / account_created</code></td></tr>
-  <tr><td>מייל</td><td>שורת נושא, מה מגלים בו, מתי נשלח</td><td>פתיחות וחזרה לאתר תוך 7 ימים</td><td>הסרות מהרשימה</td></tr>
- </table></div>
-</section>
-
-<section class="card">
- <h2>כללי ההכרעה, לפי הסדר</h2>
- <ol class="rules">
-  <li><b>ממשיכים</b> עד שמגיעים למדגם שתוכנן.</li>
-  <li><b>עוצרים</b> אם חלוקת התנועה נשברה. זה באג, לא תוצאה.</li>
-  <li><b>פוסלים</b> אם מדד ההגנה נפגע.</li>
-  <li><b>B עולה לאוויר</b> אם המדד שקובע השתפר באופן מובהק.</li>
-  <li><b>אחרת נשארים עם A.</b></li>
- </ol>
 </section>
 
 </div>
@@ -245,7 +216,7 @@ function renderFunnel(){const sig=S.i+"|"+S.done+"|"+shipped().join();if(sig===f
 /* ---------- engine ---------- */
 let S,timer=null,mode="rec",speed=250,chart;
 function reset(){stop();rng=seed(Date.now()%1e9);S={day:0,i:0,oA:{},oB:{},tests:TESTS.map(()=>({})),done:false};
- const base=planTest(0,1);fsig="";renderKpi();
+ const base=planTest(0,1);fsig="";
  document.getElementById("log").innerHTML="";log("שלוש בדיקות בבקלוג. בדיקה 1 נמדדת לפי "+MET[TESTS[0].kpi].he+", מול בסיס של "+ltr(pct(base))+", ותצטרך "+fmt(S.tests[0].n)+" "+unitOf(TESTS[0].kpi)+" בכל גרסה.",1);
  chart.data.labels=[];chart.data.datasets.forEach(d=>d.data=[]);chart.update();render()}
 function log(s,ev){const d=document.createElement("div");if(ev)d.className="ev";d.innerHTML=s;const L=document.getElementById("log");L.appendChild(d);L.scrollTop=L.scrollHeight}
@@ -268,7 +239,7 @@ function step(){if(S.done)return stop();S.day++;const i=S.i,t=TESTS[i],[a,b]=mod
   advance()}
  chart.update("none");render()}
 function advance(){S.i++;S.oA={};S.oB={};
- if(S.i<TESTS.length){const nt=TESTS[S.i],base=planTest(S.i,S.day+1);renderKpi();log("בדיקה "+(S.i+1)+" מתחילה ביום "+(S.day+1)+" מעל הגרסה החיה. המדד שקובע: "+MET[nt.kpi].he+", בסיס "+ltr(pct(base))+". צריך "+fmt(S.tests[S.i].n)+" "+unitOf(nt.kpi)+" בכל גרסה.")}
+ if(S.i<TESTS.length){const nt=TESTS[S.i],base=planTest(S.i,S.day+1);log("בדיקה "+(S.i+1)+" מתחילה ביום "+(S.day+1)+" מעל הגרסה החיה. המדד שקובע: "+MET[nt.kpi].he+", בסיס "+ltr(pct(base))+". צריך "+fmt(S.tests[S.i].n)+" "+unitOf(nt.kpi)+" בכל גרסה.")}
  else{S.done=true;log("הבקלוג ריק. כל הבדיקות הוכרעו.",1);stop()}}
 function kill(){if(S.done)return;const T=S.tests[S.i];T.dec="kill";T.end=S.day;log("יום "+S.day+": בדיקה "+(S.i+1)+" נעצרה ידנית. נשארים עם A ועוברים לבדיקה הבאה.",1);advance();chart.update("none");render()}
 const COL={ship:"#1e8e3e",keep:"#5f6368",rej:"#d93025",srm:"#b45309",kill:"#b45309"};
@@ -283,27 +254,27 @@ function render(){document.getElementById("dayl").textContent="יום "+S.day;
   (has?'<div class="stats"><span>A</span><b>'+pct(T.cc)+'</b><span>B</span><b>'+pct(T.cv)+'</b><span>p</span><b>'+(T.p<1e-4?'<0.0001':T.p.toFixed(3))+'</b>'+(T.gc==null?'':'<span>מדד הגנה</span><b class="'+(T.gHeld?'ok':'bad')+'">'+pct(T.gc)+' → '+pct(T.gv)+'</b>')+'</div>':'')+(run&&has?'<button class="kill" onclick="kill()">עצירת בדיקה</button>':'')+'</div>'}).join("");
  renderBacklog();lockSettings();
  const P=document.getElementById("play");P.textContent=timer?"❚❚ עצירה":S.done?"✓ הסתיים":"▶ הרצת התור";P.disabled=S.done}
+const sel=(k,f,list,cur)=>'<select class="msel" data-k="'+k+'" data-f="'+f+'" aria-label="'+(f==="kpi"?"המדד שקובע":"מדד ההגנה")+' בבדיקה '+(k+1)+'">'+list.map(m=>'<option value="'+m+'"'+(m===cur?' selected':'')+'>'+(m==="none"?"בלי מדד הגנה":MET[m].he)+'</option>').join("")+'</select>';
 function renderBacklog(){document.getElementById("backlog").innerHTML=TESTS.map((t,k)=>{const T=S.tests[k],run=k===S.i&&!S.done;
  const b=T.dec?'<span class="badge b-'+T.dec+'">'+DEC[T.dec]+'</span>':run?'<span class="badge b-run">רצה עכשיו</span>':'<span class="badge">ממתינה</span>';
  const r=rates(liveCfg()),share={land:1,start:r.s,gate:r.s*r.g}[MET[t.kpi].d]||1;
  const row=(h,v)=>'<dt>'+h+'</dt><dd>'+v+'</dd>';
  return '<div class="test exp"><div class="top"><span class="name">'+(k+1)+'. '+t.name+'</span>'+b+'</div><dl>'+
   row("השינוי",t.B+'<br><span class="muted">לפני: '+t.A+'</span>')+
-  row("מטרה","עלייה של לפחות "+ltr(pct(MDE,0))+" במדד: "+MET[t.kpi].he+", ביחס לבסיס.")+
+  row("המדד שקובע",sel(k,"kpi",KPI_OPTS,t.kpi)+'<code class="ev">'+MET[t.kpi].ev+'</code>')+
+  row("מטרה","עלייה של לפחות "+ltr(pct(MDE,0))+" במדד הזה, ביחס לבסיס.")+
   row("השערה",t.hyp)+
-  row("מדד הגנה",t.grd==="none"?"בלי":MET[t.grd].he)+
+  row("מדד הגנה",sel(k,"grd",GRD_OPTS,t.grd)+(t.grd==="none"?"":'<code class="ev">'+MET[t.grd].ev+'</code>'))+
   row("קוד",'<a href="https://github.com/Benlenderman/iqly/compare/main...exp/'+t.git+'" target="_blank" rel="noopener" dir="ltr">exp/'+t.git+'</a> <span class="muted">(ריפו פרטי)</span>')+
   row("מדגם ומשך זמן",T.n?fmt(T.n)+" "+unitOf(t.kpi)+" לגרסה, בערך "+Math.ceil(T.n/(DAILY/2*share))+" ימים":"מחושב כשהבדיקה מתחילה")+
   (T.start&&(T.nA||T.end)?row("ימים",T.end?"יום "+T.start+" עד יום "+T.end:"מיום "+T.start+", רצה"):"")+
   (T.dec&&T.nA?row("תוצאה",ltr("A "+pct(T.cc))+" מול "+ltr("B "+pct(T.cv))+", "+ltr(T.p<1e-4?"p < 0.0001":"p = "+T.p.toFixed(4))+(T.gc==null?"":". מדד הגנה "+ltr(pct(T.gc)+" → "+pct(T.gv)))):"")+
-  (T.dec?row("תובנה",INS[T.dec]):"")+'</dl></div>'}).join("")}
+  (T.dec?row("תובנה",INS[T.dec]):"")+'</dl></div>'}).join("")
+ document.querySelectorAll("#backlog select").forEach(el=>{el.disabled=S.day>0;el.onchange=()=>{TESTS[+el.dataset.k][el.dataset.f]=el.value;forceRand();reset()}})}
 function renderParams(){document.getElementById("params").innerHTML=PAR.map(p=>'<label>'+p.he+'<select data-p="'+p.id+'">'+p.o.map(([v,l])=>'<option value="'+v+'"'+(v===PV[p.id]?' selected':'')+'>'+l+'</option>').join("")+'</select></label>').join("");
  document.querySelectorAll("#params select").forEach(el=>el.onchange=()=>{PV[el.dataset.p]=+el.value;applyParams();renderParams();forceRand();reset()})}
 function forceRand(){if(!isDefault()&&mode==="rec"){mode="rand";document.querySelectorAll("#mode button").forEach(x=>{const on=x.dataset.m==="rand";x.classList.toggle("on",on);x.setAttribute("aria-pressed",on)})}}
-function lockSettings(){const L=S.day>0;document.querySelectorAll("#params select,#kpi select").forEach(el=>el.disabled=L);document.getElementById("plock").hidden=!L}
-function renderKpi(){const opt=(list,cur,g)=>list.map(k=>'<option value="'+k+'"'+(k===cur?' selected':'')+'>'+(k==="none"?"בלי מדד הגנה":MET[k].he)+'</option>').join("");
- document.getElementById("kpi").innerHTML=TESTS.map((t,k)=>{const T=S.tests[k];return '<tr><td>'+(k+1)+'. '+t.name+'</td><td><select data-k="'+k+'" data-f="kpi" aria-label="המדד שקובע בבדיקה '+(k+1)+'">'+opt(KPI_OPTS,t.kpi)+'</select><code class="ev">'+MET[t.kpi].ev+'</code></td><td><select data-k="'+k+'" data-f="grd" aria-label="מדד ההגנה בבדיקה '+(k+1)+'">'+opt(GRD_OPTS,t.grd)+'</select>'+(t.grd==="none"?'':'<code class="ev">'+MET[t.grd].ev+'</code>')+'</td><td>'+(T&&T.n?fmt(T.n)+' '+unitOf(t.kpi):'מחושב כשהבדיקה מתחילה')+'</td></tr>'}).join("");
- document.querySelectorAll("#kpi select").forEach(el=>el.onchange=()=>{TESTS[+el.dataset.k][el.dataset.f]=el.value;forceRand();reset()})}
+function lockSettings(){const L=S.day>0;document.querySelectorAll("#params select,#backlog select").forEach(el=>el.disabled=L);document.getElementById("plock").hidden=!L}
 function stop(){clearInterval(timer);timer=null;if(S)render()}
 function play(){if(timer)return stop();timer=setInterval(step,speed);render()}
 const bands={id:"bands",beforeDraw(c){const{ctx,chartArea:a,scales:{x}}=c;if(!S)return;const cw=x.width/Math.max(1,c.data.labels.length);S.tests.forEach((T,k)=>{if(!T.start)return;const end=T.end||S.day;if(end<T.start)return;
