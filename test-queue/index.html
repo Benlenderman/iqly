@@ -95,6 +95,7 @@ td:first-child{font-weight:700;white-space:nowrap}code{font:14px Inter,monospace
 .kill{font-size:15px;min-height:40px;padding:6px 12px;margin-top:6px;color:var(--rej)}
 .foot{color:var(--mute);font-size:16px;max-width:860px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.ba{display:flex;gap:12px;flex-wrap:wrap}.ba figure{margin:0;text-align:center}.ba img{width:170px;max-width:40vw;border:1px solid var(--line,#e5e7eb);border-radius:10px;display:block}.ba figcaption{font-size:13px;color:#6b7280;margin-top:4px}
 </style></head><body><div class="wrap">
 
 <h1>תור בדיקות אוטומטי למשפך של IQly</h1>
@@ -277,16 +278,16 @@ function render(){document.getElementById("dayl").textContent="יום "+S.day;re
 const sel=(k,f,list,cur)=>'<select class="msel" data-k="'+k+'" data-f="'+f+'" aria-label="'+(f==="kpi"?"המדד שקובע":"מדד ההגנה")+' בבדיקה '+(k+1)+'">'+list.map(m=>'<option value="'+m+'"'+(m===cur?' selected':'')+'>'+(m==="none"?"בלי מדד הגנה":MET[m].he)+'</option>').join("")+'</select>';
 function renderBacklog(){document.getElementById("backlog").innerHTML=TESTS.map((t,k)=>{const T=S.tests[k],run=k===S.i&&!S.done;
  const b=T.dec?'<span class="badge b-'+T.dec+'">'+DEC[T.dec]+'</span>':run?'<span class="badge b-run">רצה עכשיו</span>':'<span class="badge">ממתינה</span>';
- const r=rates(liveCfg()),share={land:1,start:r.s,gate:r.s*r.g}[MET[t.kpi].d]||1;
  const row=(h,v)=>'<dt>'+h+'</dt><dd>'+v+'</dd>';
  return '<div class="test exp"><div class="top"><span class="name">'+(k+1)+'. '+t.name+'</span>'+b+'</div><dl>'+
   row("השינוי",t.B+'<br><span class="muted">לפני: '+t.A+'</span>')+
+  row("מסכים",'<div class="ba"><figure><img src="shots/'+(k+1)+'A.png" alt="לפני: '+t.A+'" loading="lazy"><figcaption>לפני</figcaption></figure><figure><img src="shots/'+(k+1)+'B.png" alt="אחרי: '+t.B+'" loading="lazy"><figcaption>אחרי</figcaption></figure></div>')+
   row("המדד שקובע",sel(k,"kpi",KPI_OPTS,t.kpi)+'<code class="ev">'+MET[t.kpi].ev+'</code>')+
   row("מטרה","עלייה של לפחות "+ltr(pct(MDE,0))+" במדד הזה, ביחס לבסיס.")+
   row("השערה",t.hyp)+
   row("מדד הגנה",sel(k,"grd",GRD_OPTS,t.grd)+(t.grd==="none"?"":'<code class="ev">'+MET[t.grd].ev+'</code>'))+
-  row("קוד",'<a href="https://github.com/Benlenderman/iqly/compare/main...exp/'+t.git+'" target="_blank" rel="noopener" dir="ltr">exp/'+t.git+'</a> <span class="muted">(ריפו פרטי)</span>')+
-  row("מדגם ומשך זמן",T.n?fmt(T.n)+" "+unitOf(t.kpi)+" לגרסה, בערך "+Math.ceil(T.n/(DAILY/2*share))+" ימים":"מחושב כשהבדיקה מתחילה")+
+  row("קוד",'<a href="https://github.com/Benlenderman/iqly/compare/main...exp/'+t.git+'" target="_blank" rel="noopener" dir="ltr">exp/'+t.git+'</a>')+
+  row("מדגם",T.n?fmt(T.n)+" "+unitOf(t.kpi)+" לגרסה, "+fmt(2*T.n)+" בסך הכל":"מחושב כשהבדיקה מתחילה")+
   (T.start&&(T.nA||T.end)?row("ימים",T.end?"יום "+T.start+" עד יום "+T.end:"מיום "+T.start+", רצה"):"")+
   (T.dec&&T.nA?row("תוצאה",ltr("A "+pct(T.cc))+" מול "+ltr("B "+pct(T.cv))+", "+ltr(T.p<1e-4?"p < 0.0001":"p = "+T.p.toFixed(4))+(T.gc==null?"":". מדד הגנה "+ltr(pct(T.gc)+" → "+pct(T.gv)))):"")+
   (T.dec?row("תובנה",INS[T.dec]):"")+'</dl></div>'}).join("")
