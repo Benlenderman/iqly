@@ -13,6 +13,9 @@ h1{font-size:34px;line-height:1.2;margin:0 0 10px;font-weight:800}
 h2{font-size:22px;margin:0 0 6px;font-weight:800}
 .sub{color:var(--mute);margin:0 0 16px;font-size:16px}
 section{margin-bottom:28px}
+dialog#fdlg{width:min(1100px,calc(100vw - 32px));max-height:calc(100vh - 48px);overflow:auto;color:var(--ink);position:relative}
+dialog#fdlg::backdrop{background:rgba(15,23,42,.55)}
+dialog#fdlg .x{position:absolute;top:12px;left:12px;min-height:40px;padding:6px 12px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px}
 .how{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 @media(max-width:820px){.how{grid-template-columns:1fr}}
@@ -100,15 +103,17 @@ td:first-child{font-weight:700;white-space:nowrap}code{font:14px Inter,monospace
 <div class="controls">
  <button class="primary" id="play">▶ הרצת התור</button><button id="reset">מההתחלה</button>
  <span class="seg" id="mode"><button data-m="rec" class="on">ההרצה מהמסמך</button><button data-m="rand">תנועה אקראית חדשה</button></span>
+ <button id="fopen">מה השתנה בין הגרסאות</button>
  <span class="day" id="dayl" aria-live="polite">יום 0</span>
 </div>
 <div class="now" id="now" aria-live="polite"></div>
 
-<section class="card">
- <h2>המשפך, מהמודעה ועד המייל</h2>
+<dialog id="fdlg" class="card" aria-labelledby="fdlgh">
+ <button class="x" id="fclose" aria-label="סגירה">✕</button>
+ <h2 id="fdlgh">מה השתנה בין הגרסאות</h2>
  <p class="sub" id="fsub">A באוויר. B זהה, עם השינוי של הבדיקה בכחול. מה שכבר ניצח מסומן בירוק.</p>
  <div id="funnel"></div>
-</section>
+</dialog>
 
 <section class="grid">
  <div>
@@ -298,4 +303,5 @@ function route(){const h=["dash","backlog","settings"].includes(location.hash.sl
  document.querySelectorAll(".nav a").forEach(a=>a.getAttribute("href")==="#"+h?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));if(h==="dash")chart.resize()}
 addEventListener("hashchange",route);
 renderParams();reset();route();
-</script></body></html>
+</script><script>{const d=document.getElementById("fdlg");document.getElementById("fopen").onclick=()=>d.showModal();document.getElementById("fclose").onclick=()=>d.close();d.addEventListener("click",e=>{if(e.target===d)d.close()})}</script>
+</body></html>
