@@ -7,16 +7,16 @@
 :root{--bg:#f6f7fb;--card:#fff;--ink:#14161b;--mute:#4b5563;--line:#e5e7eb;--blue:#2f5bea;--blue-soft:#e8eefe;--ship:#1e8e3e;--ship-soft:#e6f4ea;--keep:#5f6368;--rej:#d93025;--rej-soft:#fce8e6;--srm:#b45309}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 Heebo,Inter,system-ui,sans-serif}
-.wrap{max-width:1240px;margin:0 auto;padding:32px 16px 56px}
-h1{font-size:34px;line-height:1.2;margin:0 0 10px;font-weight:800}
-.lead{color:var(--mute);font-size:19px;max-width:760px;margin:0 0 28px}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 16px 56px}
+h1{font-size:26px;line-height:1.25;margin:0 0 6px;font-weight:800;letter-spacing:-.01em}
+.lead{color:var(--mute);font-size:16px;max-width:760px;margin:0 0 22px}
 h2{font-size:22px;margin:0 0 6px;font-weight:800}
 .sub{color:var(--mute);margin:0 0 16px;font-size:16px}
 section{margin-bottom:28px}
 dialog#fdlg{width:min(1100px,calc(100vw - 32px));max-height:calc(100vh - 48px);overflow:auto;color:var(--ink);position:relative}
 dialog#fdlg::backdrop{background:rgba(15,23,42,.55)}
 dialog#fdlg .x{position:absolute;top:12px;left:12px;min-height:40px;padding:6px 12px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
 .how{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 @media(max-width:820px){.how{grid-template-columns:1fr}}
 .how .card{padding:18px}.how b{display:block;font-size:18px;margin-bottom:4px}.how .n{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--blue);color:#fff;font-weight:800;margin-bottom:8px}
@@ -87,7 +87,14 @@ table{width:100%;border-collapse:collapse;font-size:16px}th,td{text-align:right;
 td:first-child{font-weight:700;white-space:nowrap}code{font:14px Inter,monospace;background:#f3f4f6;padding:1px 5px;border-radius:4px;direction:ltr;display:inline-block}
 .tablewrap{overflow-x:auto}
 .rules{margin:0;padding-inline-start:22px}.rules li{margin:8px 0}
-.nav{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 0 22px;overflow-x:auto}.nav a{padding:10px 18px;font-weight:700;color:var(--mute);text-decoration:none;border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap;min-height:44px}.nav a[aria-current=page]{color:var(--blue);border-color:var(--blue)}
+header.top{position:sticky;top:0;z-index:20;background:#0b1220;border-bottom:1px solid #1f2937}
+header.top .in{max-width:1240px;margin:0 auto;padding:0 16px;height:64px;display:flex;align-items:center;gap:18px}
+.brand{display:flex;align-items:center}.brand img{height:26px;width:auto;display:block}
+.prod{color:#fff;font:700 16px Inter,Heebo,sans-serif;padding-inline-start:18px;border-inline-start:1px solid #334155;white-space:nowrap}.prod span{color:#94a3b8;font-weight:500;margin-inline-start:6px;font-family:Heebo,sans-serif}
+.nav{display:flex;gap:2px;margin-inline-start:auto;height:100%;overflow-x:auto}
+.nav a{display:flex;align-items:center;padding:0 16px;font-weight:600;font-size:16px;color:#cbd5e1;text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap}
+.nav a:hover{color:#fff}.nav a[aria-current=page]{color:#fff;border-bottom-color:#60a5fa}
+@media(max-width:640px){.prod{display:none}.brand img{height:20px}header.top .in{gap:8px}.nav a{padding:0 10px;font-size:15px}}
 .exp dl{display:grid;grid-template-columns:130px 1fr;gap:8px 16px;margin:12px 0 0}.exp dt{color:var(--mute);font-weight:700}.exp dd{margin:0}.exp a{color:var(--blue)}.muted{color:#9ca3af}
 @media(max-width:600px){.exp dl{grid-template-columns:1fr;gap:2px}.exp dd{margin-bottom:10px}}
 .params{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.params label{display:flex;flex-direction:column;gap:6px;font-weight:700}.params select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:44px}
@@ -96,12 +103,14 @@ td:first-child{font-weight:700;white-space:nowrap}code{font:14px Inter,monospace
 .foot{color:var(--mute);font-size:16px;max-width:860px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 .ba{display:flex;gap:12px;flex-wrap:wrap}.ba figure{margin:0;text-align:center}.ba img{width:170px;max-width:40vw;border:1px solid var(--line,#e5e7eb);border-radius:10px;display:block}.ba figcaption{font-size:13px;color:#6b7280;margin-top:4px}
-</style></head><body><div class="wrap">
+</style></head><body>
+<header class="top"><div class="in"><a class="brand" href="#dash" aria-label="Arpeely, דשבורד"><img src="arpeely-logo.png" alt="Arpeely" width="123" height="33"></a><span class="prod">IQly <span>תור בדיקות</span></span>
+<nav class="nav" aria-label="עמודים"><a href="#dash">דשבורד</a><a href="#backlog">בקלוג</a><a href="#settings">הגדרות</a></nav></div></header>
+<div class="wrap">
 
 <h1>תור בדיקות אוטומטי למשפך של IQly</h1>
 <p class="lead">כל שינוי נכנס לתור כגרסה של המשפך. המנוע מריץ אותה מול מה שבאוויר, מעלה את המנצחת, והבדיקה הבאה נבנית מעליה.</p>
 
-<nav class="nav" aria-label="עמודים"><a href="#dash">דשבורד</a><a href="#backlog">בקלוג</a><a href="#settings">הגדרות</a></nav>
 
 <div class="page" id="p-dash">
 <div class="controls">
